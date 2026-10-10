@@ -43,7 +43,7 @@ struct HabitEditorSheet: View {
                     .onSubmit(save)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 16)
-                    .graphiteInset(cornerRadius: Graphite.Radius.field)
+                    .graphiteCard(cornerRadius: Graphite.Radius.field)
                 Spacer(minLength: 0)
             }
             .padding(20)

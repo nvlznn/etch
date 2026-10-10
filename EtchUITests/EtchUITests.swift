@@ -69,6 +69,18 @@ final class EtchUITests: XCTestCase {
         XCTAssertFalse(app.navigationBars.buttons["Edit"].exists)
         snapshot("06 log")
 
+        // Long-press a card and drag it above the other to reorder.
+        runCard.press(forDuration: 1.0, thenDragTo: readCard)
+        XCTAssertTrue(waitUntil(runCard.frame.minY < readCard.frame.minY), "Run was dragged above Read 20 pages")
+        snapshot("07 log reordered")
+
+        // The new order is shared with Check-In.
+        app.tabBars.buttons["Check-In"].tap()
+        let readTile = app.buttons["Read 20 pages, done today"]
+        XCTAssertTrue(runTile.waitForExistence(timeout: 3))
+        XCTAssertLessThan(runTile.frame.minX, readTile.frame.minX)
+        app.tabBars.buttons["Log"].tap()
+
         // Detail: stats, then backfill yesterday — before the habit was created, which is allowed.
         readCard.tap()
         let current = app.otherElements["Current Streak"]
@@ -146,7 +158,7 @@ final class EtchUITests: XCTestCase {
         app.tabBars.buttons["Log"].tap()
         snapshot("seeded log")
         // Scroll the whole list: 20 habits with a year of history each.
-        let list = app.scrollViews.firstMatch
+        let list = app.collectionViews.firstMatch
         for _ in 0..<4 { list.swipeUp(velocity: .fast) }
         snapshot("seeded log bottom")
     }
@@ -155,7 +167,7 @@ final class EtchUITests: XCTestCase {
     /// Reports hitch time ratio; run on a device for numbers that mean something.
     func testLogScrollPerformance() {
         launch("-EtchSeed", "20", "-EtchTab", "log")
-        let list = app.scrollViews.firstMatch
+        let list = app.collectionViews.firstMatch
         XCTAssertTrue(list.waitForExistence(timeout: 20))
 
         let options = XCTMeasureOptions()

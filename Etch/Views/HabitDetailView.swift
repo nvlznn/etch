@@ -56,26 +56,31 @@ struct HabitDetailView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: backfills)
     }
 
+    /// Three numbers on one card, separated by hairlines; stacked when the text is very large.
     private func statistics(_ stats: Stats) -> some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(spacing: 12))
-            : AnyLayout(HStackLayout(spacing: 12))
+        let stacked = dynamicTypeSize.isAccessibilitySize
+        let layout = stacked ? AnyLayout(VStackLayout(spacing: 16)) : AnyLayout(HStackLayout(spacing: 0))
         return layout {
-            StatWell(value: stats.currentStreak, title: "Current Streak")
-            StatWell(value: stats.longestStreak, title: "Longest Streak")
-            StatWell(value: stats.total, title: "Total")
+            StatItem(value: stats.currentStreak, title: "Current Streak")
+            if !stacked { StatDivider() }
+            StatItem(value: stats.longestStreak, title: "Longest Streak")
+            if !stacked { StatDivider() }
+            StatItem(value: stats.total, title: "Total")
         }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 8)
         .fixedSize(horizontal: false, vertical: true)
+        .graphiteCard()
     }
 }
 
-/// A number in a small inset well.
-private struct StatWell: View {
+/// One number and its label.
+private struct StatItem: View {
     let value: Int
     let title: LocalizedStringKey
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             Text(value, format: .number)
                 .font(.title.weight(.semibold))
                 .fontWidth(.expanded)
@@ -88,13 +93,19 @@ private struct StatWell: View {
                 .foregroundStyle(Graphite.textSecondary)
                 .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 18)
-        .padding(.horizontal, 8)
-        .graphiteInset(cornerRadius: Graphite.Radius.stat)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(title))
         .accessibilityValue(Text(value, format: .number))
+    }
+}
+
+private struct StatDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Graphite.divider)
+            .frame(width: 1)
+            .padding(.vertical, 6)
     }
 }
 
@@ -141,8 +152,8 @@ private struct HistoryGrid: View {
             .scrollIndicators(.hidden)
             .defaultScrollAnchor(.trailing)
         }
-        .padding(14)
-        .background { GraphitePlate() }
+        .padding(16)
+        .graphiteCard()
         // The grid has a fixed geometry; past this size its labels would overflow their rows.
         .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }

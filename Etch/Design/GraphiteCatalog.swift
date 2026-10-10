@@ -1,7 +1,7 @@
 #if DEBUG
 import SwiftUI
 
-/// Every Design/ component side by side, to check that the light always comes from the top left.
+/// Every Design/ component side by side, for checking the look in one place.
 /// Development only: open with the `-EtchCatalog` launch argument or the preview below.
 struct GraphiteCatalog: View {
     private let today = Day.today()
@@ -9,34 +9,25 @@ struct GraphiteCatalog: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                section("Raised · Inset") {
-                    HStack(spacing: 16) {
-                        sample("Raised").graphiteRaised()
-                        sample("Inset").graphiteInset()
+                section("Card") {
+                    Text(verbatim: "Card")
+                        .font(.headline)
+                        .foregroundStyle(Graphite.textPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 110)
+                        .graphiteCard()
+                }
+
+                section("Buttons: primary · secondary") {
+                    VStack(spacing: 12) {
+                        Button {} label: { buttonLabel }.buttonStyle(.primary)
+                        Button {} label: { buttonLabel }.buttonStyle(.secondary)
                     }
                 }
 
-                section("Button: rest · held") {
-                    HStack(spacing: 16) {
-                        Button {} label: { buttonLabel }
-                            .buttonStyle(.graphite)
-                        buttonLabel
-                            .foregroundStyle(Graphite.textPrimary)
-                            .background { GraphiteSurface(elevation: .inset, shape: Capsule()) }
-                    }
-                }
-
-                section("Dimple · filled") {
+                section("Check dot: not done · done") {
                     HStack(spacing: 24) {
-                        Dimple(diameter: 88)
-                        Dimple(diameter: 88, isFilled: true)
-                    }
-                }
-
-                section("Increase Contrast") {
-                    HStack(spacing: 24) {
-                        DimpleArt(diameter: 88, increasedContrast: true)
-                        Dimple(diameter: 88, isFilled: true)
+                        CheckDot(diameter: 64)
+                        CheckDot(diameter: 64, isDone: true)
                     }
                 }
 
@@ -46,8 +37,8 @@ struct GraphiteCatalog: View {
                         done: Set((0..<112).filter { $0 % 3 != 0 }.map { today.adding(days: -$0) }),
                         today: today
                     )
-                    .padding(14)
-                    .background { GraphitePlate() }
+                    .padding(16)
+                    .graphiteCard()
                 }
 
                 section("Text") {
@@ -58,7 +49,7 @@ struct GraphiteCatalog: View {
                     .font(.body)
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .graphiteInset()
+                    .graphiteCard()
                 }
             }
             .padding(20)
@@ -69,15 +60,8 @@ struct GraphiteCatalog: View {
     private var buttonLabel: some View {
         Label(String(localized: "Add Habit"), systemImage: "plus")
             .font(.headline)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-    }
-
-    private func sample(_ title: String) -> some View {
-        Text(verbatim: title)
-            .font(.headline)
-            .foregroundStyle(Graphite.textPrimary)
-            .frame(maxWidth: .infinity, minHeight: 110)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
     }
 
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {

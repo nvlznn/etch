@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A habit's name over its last 16 weeks on a dot-grid plate. Sits in a `PlateButtonStyle` button,
-/// which tells the plate when it is pressed.
+/// A habit's name above a card holding its last 16 weeks. Sits in a `.pressable` button, which
+/// tells the card when it is held down.
 struct HabitLogCard: View {
     static let weeks = 16
 
@@ -15,9 +15,9 @@ struct HabitLogCard: View {
         let grid = WeekGrid.ending(at: today, weeks: Self.weeks, firstWeekday: Calendar.current.firstWeekday)
         let doneInGrid = done.count { $0 >= grid.start && $0 <= today }
 
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(habit.name)
-                .font(.footnote.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Graphite.textPrimary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -25,8 +25,13 @@ struct HabitLogCard: View {
                 .padding(.horizontal, 4)
 
             DotGrid(grid: grid, done: done, today: today)
-                .padding(10)
-                .background { GraphitePlate(pressed: isPressed) }
+                .padding(14)
+                .background {
+                    GraphiteCard(
+                        shape: RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous),
+                        isPressed: isPressed
+                    )
+                }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(habit.name))

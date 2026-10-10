@@ -71,16 +71,16 @@ struct EmptyHabitsCard: View {
                 Button(action: onAdd) {
                     Label("Add Habit", systemImage: "plus")
                         .font(.headline)
-                        .padding(.horizontal, 26)
-                        .padding(.vertical, 15)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
                 }
-                .buttonStyle(.graphite)
+                .buttonStyle(.primary)
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 56)
         .padding(.horizontal, 24)
-        .graphiteInset()
+        .graphiteCard()
     }
 }
 

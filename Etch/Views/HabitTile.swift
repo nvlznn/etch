@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// One habit on the Check-In page: its name over a large dimple. Tap the dimple to fill it with white;
-/// tap again to take it out.
+/// One habit on the Check-In page: its name over a circle. Tap the circle to fill it with white;
+/// tap again to clear it.
 struct HabitTile: View {
     let habit: Habit
     let onRename: () -> Void
@@ -9,7 +9,7 @@ struct HabitTile: View {
 
     @Environment(\.today) private var today
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .title) private var dimpleDiameter: CGFloat = 56
+    @ScaledMetric(relativeTo: .title) private var dotDiameter: CGFloat = 56
     @State private var lastToggle = ToggleEvent()
 
     var body: some View {
@@ -23,12 +23,12 @@ struct HabitTile: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Button(action: toggle) {
-                Dimple(diameter: min(dimpleDiameter, 112), isFilled: done)
+                CheckDot(diameter: min(dotDiameter, 112), isDone: done)
             }
-            .buttonStyle(DimpleButtonStyle())
+            .buttonStyle(CheckDotButtonStyle())
         }
         .padding(12)
-        .graphiteRaised()
+        .graphiteCard()
         .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous))
         .contextMenu {
             Button("Rename", systemImage: "pencil", action: onRename)

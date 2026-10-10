@@ -1,67 +1,70 @@
 import SwiftUI
 
-/// The one button style in Etch: raised at rest, sinks into the slab while pressed.
-///
-/// Works for capsule buttons and for whole cards (`.graphite(cornerRadius:)`). The label supplies
-/// its own padding; the style only supplies the surface and the text color.
+/// The button styles in Etch. Each label supplies its own padding; the style supplies the surface.
 struct GraphiteButtonStyle: ButtonStyle {
-    /// `nil` draws a capsule.
-    var cornerRadius: CGFloat?
+    enum Kind {
+        /// White capsule, black text: the one main action on a screen.
+        case primary
+        /// Card-colored capsule, white text.
+        case secondary
+        /// A whole card that can be tapped, e.g. a habit in the Log.
+        case card(cornerRadius: CGFloat)
+    }
+
+    var kind: Kind
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(Graphite.textPrimary)
-            .background { surface(pressed: configuration.isPressed) }
-            .contentShape(.interaction, shape)
-            .contentShape(.contextMenuPreview, shape)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-
-    @ViewBuilder
-    private func surface(pressed: Bool) -> some View {
-        let elevation: Elevation = pressed ? .inset : .raised
-        if let cornerRadius {
-            GraphiteSurface(elevation: elevation, shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        } else {
-            GraphiteSurface(elevation: elevation, shape: Capsule())
+        let pressed = configuration.isPressed
+        return Group {
+            switch kind {
+            case .primary:
+                configuration.label
+                    .foregroundStyle(Graphite.background)
+                    .background(Capsule().fill(Graphite.done))
+                    .opacity(pressed ? 0.8 : 1)
+                    .contentShape(Capsule())
+            case .secondary:
+                configuration.label
+                    .foregroundStyle(Graphite.textPrimary)
+                    .background { GraphiteCard(shape: Capsule(), isPressed: pressed) }
+                    .contentShape(Capsule())
+            case .card(let cornerRadius):
+                let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                configuration.label
+                    .foregroundStyle(Graphite.textPrimary)
+                    .background { GraphiteCard(shape: shape, isPressed: pressed) }
+                    .contentShape(.interaction, shape)
+                    .contentShape(.contextMenuPreview, shape)
+            }
         }
-    }
-
-    private var shape: AnyShape {
-        if let cornerRadius {
-            AnyShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        } else {
-            AnyShape(Capsule())
-        }
+        .scaleEffect(pressed ? 0.98 : 1)
+        .animation(.easeOut(duration: 0.12), value: pressed)
     }
 }
 
-/// For buttons whose label draws its own surface, like a Log card's plate: no background, and the
-/// pressed state handed to the label through `\.isGraphitePressed`.
-struct PlateButtonStyle: ButtonStyle {
+/// For buttons whose label draws its own card, e.g. a Log entry with its name above the card.
+/// Adds no background; hands the pressed state to the label through `\.isGraphitePressed`.
+struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .environment(\.isGraphitePressed, configuration.isPressed)
             .contentShape(.rect)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
 extension EnvironmentValues {
-    /// Whether the enclosing `PlateButtonStyle` button is being held down.
+    /// Whether the enclosing `PressableButtonStyle` button is held down.
     @Entry var isGraphitePressed = false
 }
 
-extension ButtonStyle where Self == PlateButtonStyle {
-    static var plate: PlateButtonStyle { PlateButtonStyle() }
+extension ButtonStyle where Self == PressableButtonStyle {
+    static var pressable: PressableButtonStyle { PressableButtonStyle() }
 }
 
 extension ButtonStyle where Self == GraphiteButtonStyle {
-    /// A raised capsule button.
-    static var graphite: GraphiteButtonStyle { GraphiteButtonStyle() }
-
-    /// A raised rounded-rectangle button, e.g. a whole card.
-    static func graphite(cornerRadius: CGFloat) -> GraphiteButtonStyle {
-        GraphiteButtonStyle(cornerRadius: cornerRadius)
-    }
+    static var primary: GraphiteButtonStyle { GraphiteButtonStyle(kind: .primary) }
+    static var secondary: GraphiteButtonStyle { GraphiteButtonStyle(kind: .secondary) }
+    static var card: GraphiteButtonStyle { GraphiteButtonStyle(kind: .card(cornerRadius: Graphite.Radius.card)) }
 }
