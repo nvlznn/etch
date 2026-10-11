@@ -5,7 +5,7 @@ import SwiftUI
 struct HabitTile: View {
     let habit: Habit
     let day: Day
-    let onRename: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
 
     @Environment(\.today) private var today
@@ -32,8 +32,8 @@ struct HabitTile: View {
         .graphiteCard()
         .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous))
         .contextMenu {
-            Button("Rename", systemImage: "pencil", action: onRename)
-            Button("Delete", systemImage: "trash", role: .destructive, action: onDelete)
+            Button("Edit", systemImage: "pencil", action: onEdit)
+            DeleteHabitButton(action: onDelete)
         }
         // Keyed to taps on this tile only, so backfilling today from the detail page doesn't buzz twice.
         .sensoryFeedback(trigger: lastToggle) { _, event in
@@ -43,7 +43,7 @@ struct HabitTile: View {
         .accessibilityLabel(accessibilityLabel(done: done))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(.default, toggle)
-        .accessibilityAction(named: Text("Rename"), onRename)
+        .accessibilityAction(named: Text("Edit"), onEdit)
         .accessibilityAction(named: Text("Delete"), onDelete)
     }
 

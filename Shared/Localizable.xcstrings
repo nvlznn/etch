@@ -237,6 +237,26 @@
         }
       }
     },
+    "Edit" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯"
+          }
+        }
+      }
+    },
+    "Edit Habit" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯習慣"
+          }
+        }
+      }
+    },
     "Habit" : {
       "localizations" : {
         "zh-Hant" : {
@@ -357,6 +377,26 @@
         }
       }
     },
+    "Note" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備註"
+          }
+        }
+      }
+    },
+    "Note (optional)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "備註（選填）"
+          }
+        }
+      }
+    },
     "Previous Day" : {
       "localizations" : {
         "zh-Hant" : {
@@ -373,36 +413,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "上個月"
-          }
-        }
-      }
-    },
-    "Range" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "範圍"
-          }
-        }
-      }
-    },
-    "Rename" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新命名"
-          }
-        }
-      }
-    },
-    "Rename Habit" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新命名"
           }
         }
       }

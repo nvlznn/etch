@@ -41,7 +41,7 @@ final class EtchUITests: XCTestCase {
 
         // Rename from the context menu.
         done.press(forDuration: 1.2)
-        let rename = app.buttons["Rename"]
+        let rename = app.buttons["Edit"]
         XCTAssertTrue(rename.waitForExistence(timeout: 3))
         snapshot("04 context menu")
         rename.tap()
@@ -70,7 +70,9 @@ final class EtchUITests: XCTestCase {
         snapshot("06 log")
 
         // Long-press a card and drag it above the other to reorder.
-        runCard.press(forDuration: 1.0, thenDragTo: readCard)
+        // Drop on the top of the card: its middle is ambiguous when cards are short (7 Days).
+        runCard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            .press(forDuration: 1.0, thenDragTo: readCard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)))
         XCTAssertTrue(waitUntil(runCard.frame.minY < readCard.frame.minY), "Run was dragged above Read 20 pages")
         snapshot("07 log reordered")
 

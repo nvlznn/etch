@@ -1,11 +1,14 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
 final class Habit {
     var name: String
     var createdAt: Date
     var sortOrder: Int
+    /// Anything the user wants to remember about the habit: why, how, when. Empty when unused.
+    var notes: String = ""
     @Relationship(deleteRule: .cascade, inverse: \CheckIn.habit) var checkIns: [CheckIn] = []
 
     init(name: String, sortOrder: Int, createdAt: Date = .now) {
@@ -55,6 +58,16 @@ extension Habit {
         let done = !isDone(on: day)
         setDone(done, on: day)
         return done
+    }
+
+    /// Moves habits the way `Array.move(fromOffsets:toOffset:)` would, and keeps the new order in
+    /// `sortOrder`. `habits` must be every habit, in their current order.
+    static func reorder(_ habits: [Habit], fromOffsets source: IndexSet, toOffset destination: Int) {
+        var reordered = habits
+        reordered.move(fromOffsets: source, toOffset: destination)
+        for (index, habit) in reordered.enumerated() where habit.sortOrder != index {
+            habit.sortOrder = index
+        }
     }
 
     /// The `sortOrder` for a habit added after every existing one.

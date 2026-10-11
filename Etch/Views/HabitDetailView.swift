@@ -1,7 +1,8 @@
 import SwiftData
 import SwiftUI
 
-/// One habit in full: streaks, and its whole history as a month calendar you can backfill.
+/// One habit in full: its note, streaks, and its whole history as a month calendar you can
+/// backfill.
 struct HabitDetailView: View {
     let habit: Habit
 
@@ -9,7 +10,7 @@ struct HabitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.today) private var today
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var renaming = false
+    @State private var editing = false
     @State private var deleting: Habit?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var backfills = 0
@@ -29,6 +30,9 @@ struct HabitDetailView: View {
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if !habit.notes.isEmpty {
+                    notes
+                }
                 statistics(stats)
                 MonthCalendar(done: done, today: today, firstDay: habit.firstDay, onTap: toggle)
             }
@@ -41,12 +45,12 @@ struct HabitDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu("More", systemImage: "ellipsis") {
-                    Button("Rename", systemImage: "pencil") { renaming = true }
-                    Button("Delete", systemImage: "trash", role: .destructive) { deleting = habit }
+                    Button("Edit", systemImage: "pencil") { editing = true }
+                    DeleteHabitButton { deleting = habit }
                 }
             }
         }
-        .sheet(isPresented: $renaming) { HabitEditorSheet(target: .rename(habit)) }
+        .sheet(isPresented: $editing) { HabitEditorSheet(target: .edit(habit)) }
         .confirmingDeletion(of: $deleting) { habit in
             dismiss()
             modelContext.delete(habit)
@@ -67,6 +71,22 @@ struct HabitDetailView: View {
             habit.setDone(filling, on: day)
         }
         backfills += 1
+    }
+
+    /// The habit's note, as typed. Tap to edit it.
+    private var notes: some View {
+        Button { editing = true } label: {
+            Text(habit.notes)
+                .font(.subheadline)
+                .foregroundStyle(Graphite.textSecondary)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+        }
+        .buttonStyle(.card)
+        .accessibilityLabel(Text("Note"))
+        .accessibilityValue(Text(habit.notes))
+        .accessibilityHint(Text("Edit"))
     }
 
     /// Three numbers on one card, separated by hairlines; stacked when the text is very large.

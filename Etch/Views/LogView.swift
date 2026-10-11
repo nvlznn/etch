@@ -42,11 +42,8 @@ struct LogView: View {
     /// A system list, so long-press-and-drag reordering works without an Edit button.
     private var list: some View {
         List {
-            Picker("Range", selection: $span) {
-                ForEach(LogSpan.allCases) { Text($0.title).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
+            SpanSwitch(span: $span)
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
@@ -93,11 +90,51 @@ struct LogView: View {
     }
 
     private func move(from source: IndexSet, to destination: Int) {
-        var reordered = habits
-        reordered.move(fromOffsets: source, toOffset: destination)
-        for (index, habit) in reordered.enumerated() where habit.sortOrder != index {
-            habit.sortOrder = index
+        Habit.reorder(habits, fromOffsets: source, toOffset: destination)
+    }
+}
+
+/// Picks the Log's span, styled like Etch's other controls: a small card-colored capsule whose
+/// picked side is a white pill with black text. The pill slides across when the pick changes.
+private struct SpanSwitch: View {
+    @Binding var span: LogSpan
+
+    @Namespace private var pill
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(LogSpan.allCases) { option in
+                let selected = option == span
+                Button {
+                    span = option
+                } label: {
+                    Text(option.title)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(selected ? Graphite.background : Graphite.textSecondary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .frame(minWidth: 72)
+                        .background {
+                            if selected {
+                                Capsule()
+                                    .fill(Graphite.done)
+                                    .matchedGeometryEffect(id: "pill", in: pill)
+                            }
+                        }
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
         }
+        .padding(3)
+        .background { GraphiteCard(shape: Capsule()) }
+        .fixedSize()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        // Keyed to the value rather than wrapped around the tap: `span` lives in `@AppStorage`,
+        // whose updates don't carry a `withAnimation` transaction.
+        .animation(.spring(response: 0.32, dampingFraction: 0.82), value: span)
+        .sensoryFeedback(.selection, trigger: span)
     }
 }
 

@@ -3,28 +3,39 @@ import SwiftUI
 
 enum HabitEditorTarget: Identifiable {
     case new
-    case rename(Habit)
+    case edit(Habit)
 
     var id: PersistentIdentifier? {
-        if case .rename(let habit) = self { habit.persistentModelID } else { nil }
+        if case .edit(let habit) = self { habit.persistentModelID } else { nil }
     }
 }
 
-/// Adds a habit or renames one. A habit is only a name: no icon, color or schedule.
+/// Adds a habit or edits one. A habit is a name and an optional note: no icon, color or
+/// schedule.
+///
+/// Opens at full height so the sheet rises once; a half-height sheet would stop halfway and then
+/// jump again when the keyboard came up.
 struct HabitEditorSheet: View {
     let target: HabitEditorTarget
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var name: String
-    @FocusState private var isFocused: Bool
+    @State private var notes: String
+    @FocusState private var focus: Field?
+
+    private enum Field {
+        case name, notes
+    }
 
     init(target: HabitEditorTarget) {
         self.target = target
-        if case .rename(let habit) = target {
+        if case .edit(let habit) = target {
             _name = State(initialValue: habit.name)
+            _notes = State(initialValue: habit.notes)
         } else {
             _name = State(initialValue: "")
+            _notes = State(initialValue: "")
         }
     }
 
@@ -32,22 +43,36 @@ struct HabitEditorSheet: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var trimmedNotes: String {
+        notes.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         NavigationStack {
-            VStack {
-                TextField("Name", text: $name, prompt: Text("Name").foregroundStyle(Graphite.textSecondary))
-                    .font(.title3)
-                    .foregroundStyle(Graphite.textPrimary)
-                    .focused($isFocused)
-                    .submitLabel(.done)
-                    .onSubmit(save)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 16)
-                    .graphiteCard(cornerRadius: Graphite.Radius.field)
-                Spacer(minLength: 0)
+            ScrollView {
+                VStack(spacing: 12) {
+                    TextField("Name", text: $name, prompt: Text("Name").foregroundStyle(Graphite.textSecondary))
+                        .font(.title3)
+                        .focused($focus, equals: .name)
+                        .submitLabel(.done)
+                        .onSubmit(save)
+                        .fieldCard()
+
+                    TextField(
+                        "Note", text: $notes,
+                        prompt: Text("Note (optional)").foregroundStyle(Graphite.textSecondary),
+                        axis: .vertical
+                    )
+                    .font(.body)
+                    .lineLimit(4...12)
+                    .focused($focus, equals: .notes)
+                    .fieldCard()
+                }
+                .foregroundStyle(Graphite.textPrimary)
+                .padding(20)
             }
-            .padding(20)
-            .navigationTitle(isNew ? "New Habit" : "Rename Habit")
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle(isNew ? "New Habit" : "Edit Habit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -59,9 +84,9 @@ struct HabitEditorSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
         .presentationBackground { GraphiteBackground() }
-        .onAppear { isFocused = true }
+        .onAppear { focus = .name }
     }
 
     private var isNew: Bool {
@@ -72,11 +97,41 @@ struct HabitEditorSheet: View {
         guard !trimmedName.isEmpty else { return }
         switch target {
         case .new:
-            modelContext.insert(Habit(name: trimmedName, sortOrder: Habit.nextSortOrder(in: modelContext)))
-        case .rename(let habit):
+            let habit = Habit(name: trimmedName, sortOrder: Habit.nextSortOrder(in: modelContext))
+            habit.notes = trimmedNotes
+            modelContext.insert(habit)
+        case .edit(let habit):
             habit.name = trimmedName
+            if habit.notes != trimmedNotes { habit.notes = trimmedNotes }
         }
         dismiss()
+    }
+}
+
+private extension View {
+    /// A text field's padding and card.
+    func fieldCard() -> some View {
+        padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .graphiteCard(cornerRadius: Graphite.Radius.field)
+    }
+}
+
+/// "Delete" for a habit's menus, red icon and all. A destructive role colors only the title; the
+/// app's white tint would otherwise leave the trash can white.
+struct DeleteHabitButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(role: .destructive, action: action) {
+            Label {
+                Text("Delete")
+            } icon: {
+                Image(systemName: "trash")
+                    .foregroundStyle(.red)
+            }
+        }
+        .tint(.red)
     }
 }
 

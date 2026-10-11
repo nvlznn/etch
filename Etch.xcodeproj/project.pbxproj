@@ -59,7 +59,6 @@
 		E7C0000000000000000004A1 /* Exceptions for "Etch" folder in "Etch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Etch.entitlements,
 				Info.plist,
 			);
 			target = E7C000000000000000000100 /* Etch */;
@@ -67,7 +66,6 @@
 		E7C0000000000000000004B1 /* Exceptions for "EtchWidgets" folder in "EtchWidgets" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				EtchWidgets.entitlements,
 				Info.plist,
 			);
 			target = E7C000000000000000000600 /* EtchWidgets */;
@@ -250,8 +248,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E7C000000000000000000016 /* EtchWidgets */,
 				E7C000000000000000000015 /* Shared */,
+				E7C000000000000000000016 /* EtchWidgets */,
 			);
 			name = EtchWidgets;
 			packageProductDependencies = (
