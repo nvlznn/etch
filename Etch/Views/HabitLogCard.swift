@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// A habit's name above a card holding its last 16 weeks. Sits in a `.pressable` button, which
-/// tells the card when it is held down.
+/// A compact card: a habit's name over its last 26 weeks, small enough that four fit on one screen.
+/// Sits in a `.pressable` button, which tells the card when it is held down.
 struct HabitLogCard: View {
-    static let weeks = 16
+    static let weeks = 26
 
     let habit: Habit
 
@@ -17,24 +17,23 @@ struct HabitLogCard: View {
 
         VStack(alignment: .leading, spacing: 8) {
             Text(habit.name)
-                .font(.subheadline.weight(.semibold))
+                .font(.footnote.weight(.semibold))
                 .foregroundStyle(Graphite.textPrimary)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
+                .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 2)
 
             DotGrid(grid: grid, done: done, today: today)
-                .padding(14)
-                .background {
-                    GraphiteCard(
-                        shape: RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous),
-                        isPressed: isPressed
-                    )
-                }
+        }
+        .padding(12)
+        .background {
+            GraphiteCard(
+                shape: RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous),
+                isPressed: isPressed
+            )
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(habit.name))
-        .accessibilityValue(Text("\(doneInGrid) days completed in the last 16 weeks"))
+        .accessibilityValue(Text("\(doneInGrid) days completed in the last 26 weeks"))
     }
 }

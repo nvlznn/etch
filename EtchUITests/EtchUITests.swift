@@ -88,8 +88,9 @@ final class EtchUITests: XCTestCase {
         XCTAssertEqual(current.value as? String, "1")
         XCTAssertEqual(app.otherElements["Total"].value as? String, "1")
         XCTAssertEqual(app.buttons[dayLabel(0)].value as? String, "Completed")
-        XCTAssertFalse(app.buttons[dayLabel(1)].exists, "Future days aren't drawn")
+        XCTAssertFalse(app.buttons[dayLabel(1)].exists, "Future days can't be tapped")
 
+        showMonth(containing: -1)
         let yesterday = app.buttons[dayLabel(-1)]
         XCTAssertEqual(yesterday.value as? String, "Not completed")
         yesterday.tap()
@@ -130,6 +131,29 @@ final class EtchUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["No habits yet"].waitForExistence(timeout: 3))
     }
 
+    func testCheckInOnAnotherDay() {
+        launch()
+        app.buttons["Add Habit"].firstMatch.tap()
+        app.textFields["Name"].typeText("Read\n")
+        let today = app.buttons["Read, not done today"]
+        XCTAssertTrue(today.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Next Day"].isEnabled, "Can't go past today")
+
+        // Back a day, check in there; today is untouched.
+        app.buttons["Previous Day"].tap()
+        XCTAssertTrue(app.buttons["Next Day"].isEnabled)
+        let yesterday = app.buttons["Read, not done on \(tileDate(-1))"]
+        XCTAssertTrue(yesterday.waitForExistence(timeout: 3))
+        tapDimple(of: yesterday)
+        XCTAssertTrue(app.buttons["Read, done on \(tileDate(-1))"].waitForExistence(timeout: 3))
+        snapshot("check-in yesterday")
+
+        app.buttons["Next Day"].tap()
+        XCTAssertTrue(today.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Next Day"].isEnabled)
+        snapshot("check-in today")
+    }
+
     func testBackfillUpdatesStats() {
         launch("-EtchSeed", "1", "-EtchTab", "log", "-EtchOpenFirst")
         let total = app.otherElements["Total"]
@@ -137,10 +161,11 @@ final class EtchUITests: XCTestCase {
         let before = Int(total.value as! String)!
 
         // Ten days ago, so the change can't touch today's tile on Check-In.
+        // The page is pushed on launch; let it finish sliding in before tapping.
+        XCTAssertTrue(waitUntil(app.navigationBars.buttons["More"].isHittable))
+        showMonth(containing: -10)
         let dot = app.buttons[dayLabel(-10)]
-        XCTAssertTrue(dot.exists)
-        // The page is pushed on launch; let it finish sliding in before tapping by position.
-        XCTAssertTrue(waitUntil(app.navigationBars.buttons["More"].isHittable && dot.isHittable))
+        XCTAssertTrue(waitUntil(dot.isHittable))
         let wasDone = dot.value as? String == "Completed"
         dot.tap()
         XCTAssertTrue(waitUntil(dot.value as? String == (wasDone ? "Not completed" : "Completed")))
@@ -195,10 +220,28 @@ final class EtchUITests: XCTestCase {
         return condition()
     }
 
-    /// The VoiceOver label of a dot in the detail grid, `offset` days from today.
+    /// Pages the detail calendar back to the month holding the day `offset` days from today.
+    /// The calendar opens on this month.
+    private func showMonth(containing offset: Int) {
+        let calendar = Calendar.current
+        let target = calendar.date(byAdding: .day, value: offset, to: .now)!
+        let months = calendar.dateComponents([.month], from: calendar.dateInterval(of: .month, for: target)!.start,
+                                             to: calendar.dateInterval(of: .month, for: .now)!.start).month!
+        for _ in 0..<months {
+            app.buttons["Previous Month"].tap()
+        }
+    }
+
+    /// The VoiceOver label of a day in the detail calendar, `offset` days from today.
     private func dayLabel(_ offset: Int) -> String {
         Calendar.current.date(byAdding: .day, value: offset, to: .now)!
             .formatted(.dateTime.weekday(.wide).month(.wide).day().year())
+    }
+
+    /// How a Check-In tile names a day other than today, `offset` days from today.
+    private func tileDate(_ offset: Int) -> String {
+        Calendar.current.date(byAdding: .day, value: offset, to: .now)!
+            .formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 
     private func snapshot(_ name: String) {

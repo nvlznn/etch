@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E7C000000000000000000106 /* EtchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E7C000000000000000000601 /* EtchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E7C0000000000000000003A1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,21 +25,52 @@
 			remoteGlobalIDString = E7C000000000000000000100;
 			remoteInfo = Etch;
 		};
+		E7C0000000000000000003C1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E7C000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E7C000000000000000000600;
+			remoteInfo = EtchWidgets;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E7C000000000000000000105 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E7C000000000000000000106 /* EtchWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E7C000000000000000000101 /* Etch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Etch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7C000000000000000000201 /* EtchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EtchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7C000000000000000000501 /* EtchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EtchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E7C000000000000000000601 /* EtchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EtchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		E7C0000000000000000004A1 /* Exceptions for "Etch" folder in "Etch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Etch.entitlements,
 				Info.plist,
 			);
 			target = E7C000000000000000000100 /* Etch */;
+		};
+		E7C0000000000000000004B1 /* Exceptions for "EtchWidgets" folder in "EtchWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				EtchWidgets.entitlements,
+				Info.plist,
+			);
+			target = E7C000000000000000000600 /* EtchWidgets */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -56,6 +91,19 @@
 		E7C000000000000000000014 /* EtchUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = EtchUITests;
+			sourceTree = "<group>";
+		};
+		E7C000000000000000000015 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		E7C000000000000000000016 /* EtchWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E7C0000000000000000004B1 /* Exceptions for "EtchWidgets" folder in "EtchWidgets" target */,
+			);
+			path = EtchWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +130,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E7C000000000000000000602 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -89,6 +144,8 @@
 			isa = PBXGroup;
 			children = (
 				E7C000000000000000000011 /* Etch */,
+				E7C000000000000000000015 /* Shared */,
+				E7C000000000000000000016 /* EtchWidgets */,
 				E7C000000000000000000012 /* EtchTests */,
 				E7C000000000000000000014 /* EtchUITests */,
 				E7C000000000000000000013 /* Products */,
@@ -101,6 +158,7 @@
 				E7C000000000000000000101 /* Etch.app */,
 				E7C000000000000000000201 /* EtchTests.xctest */,
 				E7C000000000000000000501 /* EtchUITests.xctest */,
+				E7C000000000000000000601 /* EtchWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,13 +173,16 @@
 				E7C000000000000000000103 /* Sources */,
 				E7C000000000000000000102 /* Frameworks */,
 				E7C000000000000000000104 /* Resources */,
+				E7C000000000000000000105 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E7C0000000000000000003C2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E7C000000000000000000011 /* Etch */,
+				E7C000000000000000000015 /* Shared */,
 			);
 			name = Etch;
 			packageProductDependencies = (
@@ -176,6 +237,29 @@
 			productReference = E7C000000000000000000501 /* EtchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		E7C000000000000000000600 /* EtchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E7C000000000000000000610 /* Build configuration list for PBXNativeTarget "EtchWidgets" */;
+			buildPhases = (
+				E7C000000000000000000603 /* Sources */,
+				E7C000000000000000000602 /* Frameworks */,
+				E7C000000000000000000604 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E7C000000000000000000016 /* EtchWidgets */,
+				E7C000000000000000000015 /* Shared */,
+			);
+			name = EtchWidgets;
+			packageProductDependencies = (
+			);
+			productName = EtchWidgets;
+			productReference = E7C000000000000000000601 /* EtchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -197,6 +281,9 @@
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = E7C000000000000000000100;
 					};
+					E7C000000000000000000600 = {
+						CreatedOnToolsVersion = 27.0;
+					};
 				};
 			};
 			buildConfigurationList = E7C000000000000000000002 /* Build configuration list for PBXProject "Etch" */;
@@ -217,6 +304,7 @@
 				E7C000000000000000000100 /* Etch */,
 				E7C000000000000000000200 /* EtchTests */,
 				E7C000000000000000000500 /* EtchUITests */,
+				E7C000000000000000000600 /* EtchWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -237,6 +325,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E7C000000000000000000504 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E7C000000000000000000604 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -267,6 +362,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E7C000000000000000000603 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -279,6 +381,11 @@
 			isa = PBXTargetDependency;
 			target = E7C000000000000000000100 /* Etch */;
 			targetProxy = E7C0000000000000000003B1 /* PBXContainerItemProxy */;
+		};
+		E7C0000000000000000003C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E7C000000000000000000600 /* EtchWidgets */;
+			targetProxy = E7C0000000000000000003C1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -349,6 +456,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Etch/Etch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6KB6SVY565;
@@ -367,7 +475,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.noky.etch;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.noky.etch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -387,6 +495,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Etch/Etch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6KB6SVY565;
@@ -405,7 +514,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.noky.etch;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.noky.etch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -494,6 +603,66 @@
 			};
 			name = Release;
 		};
+		E7C000000000000000000611 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = EtchWidgets/EtchWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6KB6SVY565;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EtchWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Etch;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.noky.etch.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E7C000000000000000000612 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = EtchWidgets/EtchWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6KB6SVY565;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EtchWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Etch;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.noky.etch.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -529,6 +698,15 @@
 			buildConfigurations = (
 				E7C000000000000000000511 /* Debug */,
 				E7C000000000000000000512 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E7C000000000000000000610 /* Build configuration list for PBXNativeTarget "EtchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E7C000000000000000000611 /* Debug */,
+				E7C000000000000000000612 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

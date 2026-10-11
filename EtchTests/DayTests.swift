@@ -158,4 +158,28 @@ struct DayTests {
         #expect(WeekGrid.weeks(from: Day(20261011), through: Day(20261014), firstWeekday: 2) == 2)
         #expect(WeekGrid.weeks(from: Day(20251014), through: Day(20261014), firstWeekday: 1) == 53)
     }
+
+    // MARK: Months
+
+    @Test func monthBounds() {
+        let october = Month(Day(20261014))
+        #expect(october.first == Day(20261001))
+        #expect(october.last == Day(20261031))
+        #expect(Month(year: 2028, month: 2).length == 29)
+        #expect(Month(year: 2027, month: 2).last == Day(20270228))
+    }
+
+    @Test func monthArithmeticCarriesIntoTheYear() {
+        let october = Month(year: 2026, month: 10)
+        #expect(october.adding(months: 3) == Month(year: 2027, month: 1))
+        #expect(october.adding(months: -10) == Month(year: 2025, month: 12))
+        #expect(october.adding(months: -22) == Month(year: 2024, month: 12))
+        #expect(october.adding(months: 0) == october)
+    }
+
+    @Test func monthRange() {
+        let months = Month.range(from: Month(year: 2025, month: 11), through: Month(year: 2026, month: 2))
+        #expect(months.map(\.month) == [11, 12, 1, 2])
+        #expect(Month.range(from: Month(year: 2026, month: 2), through: Month(year: 2025, month: 11)).isEmpty)
+    }
 }

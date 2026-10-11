@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// One habit on the Check-In page: its name over a circle. Tap the circle to fill it with white;
-/// tap again to clear it.
+/// One habit on the Check-In page: its name over a circle for `day`. Tap the circle to fill it with
+/// white; tap again to clear it.
 struct HabitTile: View {
     let habit: Habit
+    let day: Day
     let onRename: () -> Void
     let onDelete: () -> Void
 
@@ -13,7 +14,7 @@ struct HabitTile: View {
     @State private var lastToggle = ToggleEvent()
 
     var body: some View {
-        let done = habit.isDone(on: today)
+        let done = habit.isDone(on: day)
 
         VStack(spacing: 10) {
             Text(habit.name)
@@ -39,15 +40,23 @@ struct HabitTile: View {
             event.filled ? .impact(weight: .medium) : .impact(weight: .light)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today"))
+        .accessibilityLabel(accessibilityLabel(done: done))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(.default, toggle)
         .accessibilityAction(named: Text("Rename"), onRename)
         .accessibilityAction(named: Text("Delete"), onDelete)
     }
 
+    private func accessibilityLabel(done: Bool) -> Text {
+        if day == today {
+            return done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today")
+        }
+        let date = day.date().formatted(.dateTime.weekday(.wide).month(.wide).day())
+        return done ? Text("\(habit.name), done on \(date)") : Text("\(habit.name), not done on \(date)")
+    }
+
     private func toggle() {
-        let filling = !habit.isDone(on: today)
+        let filling = !habit.isDone(on: day)
         let animation: Animation? = if reduceMotion {
             nil
         } else if filling {
@@ -56,7 +65,7 @@ struct HabitTile: View {
             .easeOut(duration: 0.18)
         }
         withAnimation(animation) {
-            habit.setDone(filling, on: today)
+            habit.setDone(filling, on: day)
         }
         lastToggle = ToggleEvent(count: lastToggle.count + 1, filled: filling)
     }

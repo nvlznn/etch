@@ -1,17 +1,37 @@
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @main
 struct EtchApp: App {
-    private let container = EtchApp.makeContainer()
+    @State private var container = EtchApp.makeContainer()
+    /// The last widget edit this app has loaded; see `Store.widgetEdit`.
+    @State private var seenWidgetEdit = Store.widgetEdit
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             RootView()
+                // A fresh container means fresh views: nothing may hold models from the old one.
+                .id(ObjectIdentifier(container))
                 .preferredColorScheme(.dark)
                 .tint(.white)
         }
         .modelContainer(container)
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .active:
+                // A check-in made from a widget went straight to the store; reload to see it.
+                if Store.widgetEdit != seenWidgetEdit {
+                    seenWidgetEdit = Store.widgetEdit
+                    container = EtchApp.makeContainer()
+                }
+            case .background:
+                WidgetCenter.shared.reloadAllTimelines()
+            default:
+                break
+            }
+        }
     }
 
     private static func makeContainer() -> ModelContainer {
@@ -20,11 +40,9 @@ struct EtchApp: App {
         inMemory = DebugLaunch.inMemory
         #endif
 
-        let schema = Schema([Habit.self, CheckIn.self])
-        // On this device only: no CloudKit, no network.
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory, cloudKitDatabase: .none)
+        if !inMemory { Store.moveIntoAppGroupIfNeeded() }
         do {
-            let container = try ModelContainer(for: schema, configurations: configuration)
+            let container = try Store.makeContainer(inMemory: inMemory)
             #if DEBUG
             DebugLaunch.seedIfRequested(container.mainContext)
             #endif

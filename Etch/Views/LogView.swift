@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-/// The last 16 weeks of every habit. Tap a card for its full history; long-press and drag to reorder.
+/// The last 26 weeks of every habit. Tap a card for its full history; long-press and drag to reorder.
 struct LogView: View {
     @Query(sort: [SortDescriptor(\Habit.sortOrder), SortDescriptor(\Habit.createdAt)])
     private var habits: [Habit]
@@ -44,7 +44,7 @@ struct LogView: View {
                     HabitLogCard(habit: habit)
                 }
                 .buttonStyle(.pressable)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }

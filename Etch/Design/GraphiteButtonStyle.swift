@@ -13,6 +13,8 @@ struct GraphiteButtonStyle: ButtonStyle {
 
     var kind: Kind
 
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         let pressed = configuration.isPressed
         return Group {
@@ -25,13 +27,13 @@ struct GraphiteButtonStyle: ButtonStyle {
                     .contentShape(Capsule())
             case .secondary:
                 configuration.label
-                    .foregroundStyle(Graphite.textPrimary)
+                    .foregroundStyle(isEnabled ? Graphite.textPrimary : Graphite.textDisabled)
                     .background { GraphiteCard(shape: Capsule(), isPressed: pressed) }
                     .contentShape(Capsule())
             case .card(let cornerRadius):
                 let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 configuration.label
-                    .foregroundStyle(Graphite.textPrimary)
+                    .foregroundStyle(isEnabled ? Graphite.textPrimary : Graphite.textDisabled)
                     .background { GraphiteCard(shape: shape, isPressed: pressed) }
                     .contentShape(.interaction, shape)
                     .contentShape(.contextMenuPreview, shape)

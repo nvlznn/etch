@@ -1,12 +1,32 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@, done on %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@，%2$@已完成"
+          }
+        }
+      }
+    },
     "%@, done today" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@，今天已完成"
+          }
+        }
+      }
+    },
+    "%@, not done on %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@，%2$@未完成"
           }
         }
       }
@@ -21,7 +41,7 @@
         }
       }
     },
-    "%lld days completed in the last 16 weeks" : {
+    "%lld days completed in the last 26 weeks" : {
       "localizations" : {
         "en" : {
           "variations" : {
@@ -29,13 +49,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld day completed in the last 16 weeks"
+                  "value" : "%lld day completed in the last 26 weeks"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld days completed in the last 16 weeks"
+                  "value" : "%lld days completed in the last 26 weeks"
                 }
               }
             }
@@ -44,7 +64,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最近 16 週完成 %lld 天"
+            "value" : "最近 26 週完成 %lld 天"
           }
         }
       }
@@ -69,8 +89,35 @@
         }
       }
     },
+    "Check In" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打卡"
+          }
+        }
+      }
+    },
+    "Check in from the Home Screen and see your recent days." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在主畫面打卡，並查看最近的紀錄。"
+          }
+        }
+      }
+    },
     "Check-In" : {
-      "shouldTranslate" : false
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打卡"
+          }
+        }
+      }
     },
     "Completed" : {
       "localizations" : {
@@ -92,22 +139,22 @@
         }
       }
     },
+    "Day" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除"
-          }
-        }
-      }
-    },
-    "Delete Habit" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除習慣"
           }
         }
       }
@@ -122,12 +169,42 @@
         }
       }
     },
+    "Delete Habit" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刪除習慣"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "完成"
+          }
+        }
+      }
+    },
+    "Habit" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "習慣"
+          }
+        }
+      }
+    },
+    "Habits" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "習慣"
           }
         }
       }
@@ -143,7 +220,14 @@
       }
     },
     "Log" : {
-      "shouldTranslate" : false
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記錄"
+          }
+        }
+      }
     },
     "Longest Streak" : {
       "localizations" : {
@@ -185,6 +269,26 @@
         }
       }
     },
+    "Next Day" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "後一天"
+          }
+        }
+      }
+    },
+    "Next Month" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下個月"
+          }
+        }
+      }
+    },
     "No habits yet" : {
       "localizations" : {
         "zh-Hant" : {
@@ -205,6 +309,26 @@
         }
       }
     },
+    "Previous Day" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前一天"
+          }
+        }
+      }
+    },
+    "Previous Month" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上個月"
+          }
+        }
+      }
+    },
     "Rename" : {
       "localizations" : {
         "zh-Hant" : {
@@ -221,6 +345,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重新命名"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天"
           }
         }
       }

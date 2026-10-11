@@ -127,9 +127,48 @@ nonisolated struct WeekGrid: Hashable, Sendable {
     }
 }
 
+// MARK: - Months
+
+/// A calendar month, e.g. October 2026.
+nonisolated struct Month: Hashable, Comparable, Sendable {
+    let year: Int
+    /// 1…12.
+    let month: Int
+
+    init(year: Int, month: Int) {
+        // Normalize so `month` is always 1…12, carrying into the year.
+        let zeroBased = year * 12 + (month - 1)
+        self.year = zeroBased >= 0 ? zeroBased / 12 : (zeroBased - 11) / 12
+        self.month = zeroBased - self.year * 12 + 1
+    }
+
+    /// The month `day` falls in.
+    init(_ day: Day) {
+        self.init(year: day.year, month: day.month)
+    }
+
+    var first: Day { Day(year: year, month: month, day: 1)! }
+    var length: Int { Day.length(ofMonth: month, year: year) }
+    var last: Day { first.adding(days: length - 1) }
+
+    func adding(months: Int) -> Month {
+        Month(year: year, month: month + months)
+    }
+
+    /// Every month from `first` through `last`, oldest first.
+    static func range(from first: Month, through last: Month) -> [Month] {
+        let count = (last.year - first.year) * 12 + last.month - first.month
+        return count < 0 ? [] : (0...count).map { first.adding(months: $0) }
+    }
+
+    static func < (lhs: Month, rhs: Month) -> Bool {
+        (lhs.year, lhs.month) < (rhs.year, rhs.month)
+    }
+}
+
 // MARK: - Gregorian arithmetic
 
-nonisolated private extension Day {
+nonisolated fileprivate extension Day {
     // Howard Hinnant's `days_from_civil` / `civil_from_days`:
     // https://howardhinnant.github.io/date_algorithms.html
 
