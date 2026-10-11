@@ -154,6 +154,34 @@ final class EtchUITests: XCTestCase {
         snapshot("check-in today")
     }
 
+    func testLogWeekModeAndSwipeToCheckIn() {
+        launch()
+        app.buttons["Add Habit"].firstMatch.tap()
+        app.textFields["Name"].typeText("Read\n")
+        XCTAssertTrue(app.buttons["Read, not done today"].waitForExistence(timeout: 3))
+
+        app.tabBars.buttons["Log"].tap()
+        let card = app.buttons["Read"]
+        XCTAssertTrue(card.waitForExistence(timeout: 3))
+        // The span is remembered across launches, so set it rather than assume it.
+        app.buttons["26 Weeks"].tap()
+        XCTAssertTrue(waitUntil(card.value as? String == "0 days completed in the last 26 weeks"))
+
+        app.buttons["7 Days"].tap()
+        XCTAssertTrue(waitUntil(card.value as? String == "0 days completed in the last 7 days"))
+        snapshot("log 7 days")
+
+        // Swipe left to check in today; the change shows on Check-In too.
+        swipeToCheckIn(card, action: "Check In", expecting: "1 day completed in the last 7 days")
+        snapshot("log 7 days checked in")
+        app.tabBars.buttons["Check-In"].tap()
+        XCTAssertTrue(app.buttons["Read, done today"].waitForExistence(timeout: 3))
+
+        // Swiping again undoes it.
+        app.tabBars.buttons["Log"].tap()
+        swipeToCheckIn(card, action: "Uncheck", expecting: "0 days completed in the last 7 days")
+    }
+
     func testBackfillUpdatesStats() {
         launch("-EtchSeed", "1", "-EtchTab", "log", "-EtchOpenFirst")
         let total = app.otherElements["Total"]
@@ -208,6 +236,19 @@ final class EtchUITests: XCTestCase {
     /// The dimple sits in the lower part of the tile; the tile's center is just above it.
     private func tapDimple(of tile: XCUIElement) {
         tile.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.68)).tap()
+    }
+
+    /// Swipes a Log card left until its value becomes `expected`. A full swipe runs the action
+    /// itself; a short one only reveals its button, which is then tapped. The revealed button can
+    /// close again before it is found, so this tries twice.
+    private func swipeToCheckIn(_ card: XCUIElement, action: String, expecting expected: String) {
+        for _ in 0..<2 {
+            card.swipeLeft(velocity: .fast)
+            let button = app.buttons[action]
+            if button.exists, button.isHittable { button.tap() }
+            if waitUntil(timeout: 2, card.value as? String == expected) { return }
+        }
+        XCTFail("Swiping \(card.label) left didn't \(action)")
     }
 
     /// Polls `condition` until it holds or `timeout` passes.

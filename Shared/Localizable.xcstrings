@@ -69,6 +69,54 @@
         }
       }
     },
+    "%lld days completed in the last 7 days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day completed in the last 7 days"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days completed in the last 7 days"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 7 天完成 %lld 天"
+          }
+        }
+      }
+    },
+    "26 Weeks" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "26 週"
+          }
+        }
+      }
+    },
+    "7 Days" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天"
+          }
+        }
+      }
+    },
     "Add Habit" : {
       "localizations" : {
         "zh-Hant" : {
@@ -159,22 +207,22 @@
         }
       }
     },
-    "Delete “%@”?" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要刪除「%@」嗎？"
-          }
-        }
-      }
-    },
     "Delete Habit" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除習慣"
+          }
+        }
+      }
+    },
+    "Delete “%@”?" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要刪除「%@」嗎？"
           }
         }
       }
@@ -329,6 +377,16 @@
         }
       }
     },
+    "Range" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "範圍"
+          }
+        }
+      }
+    },
     "Rename" : {
       "localizations" : {
         "zh-Hant" : {
@@ -366,6 +424,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "總次數"
+          }
+        }
+      }
+    },
+    "Uncheck" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消打卡"
           }
         }
       }

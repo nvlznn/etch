@@ -24,6 +24,7 @@ import SwiftUI
 // textPrimary    0.95    ≈ 15:1 on a card.
 // textSecondary  0.65    ≈ 7:1 on a card. Labels and captions; never dimmer.
 // textDisabled   0.38    A control that can't be used right now, e.g. "next day" on today.
+// swipeAction    0.30    Behind a swipe action's white icon, e.g. checking in from the Log.
 
 enum Graphite {
     static let background = Color(white: 0)
@@ -36,6 +37,7 @@ enum Graphite {
     static let textPrimary = Color(white: 0.95)
     static let textSecondary = Color(white: 0.65)
     static let textDisabled = Color(white: 0.38)
+    static let swipeAction = Color(white: 0.30)
 
     /// Corner radii, so every card in the app has the same curvature.
     enum Radius {
