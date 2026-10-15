@@ -270,6 +270,10 @@
 				TargetAttributes = {
 					E7C000000000000000000100 = {
 						CreatedOnToolsVersion = 27.0;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = { enabled = 1; };
+							com.apple.iCloud = { enabled = 1; };
+						};
 					};
 					E7C000000000000000000200 = {
 						CreatedOnToolsVersion = 27.0;
@@ -281,6 +285,9 @@
 					};
 					E7C000000000000000000600 = {
 						CreatedOnToolsVersion = 27.0;
+						SystemCapabilities = {
+							com.apple.iCloud = { enabled = 1; };
+						};
 					};
 				};
 			};

@@ -26,7 +26,7 @@ struct HabitDetailView: View {
 
     private var content: some View {
         let done = habit.doneDays
-        let stats = Stats(days: done, today: today)
+        let stats = Stats(days: done, today: today, weekdays: habit.weekdays)
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -34,7 +34,7 @@ struct HabitDetailView: View {
                     notes
                 }
                 statistics(stats)
-                MonthCalendar(done: done, today: today, firstDay: habit.firstDay, onTap: toggle)
+                MonthCalendar(done: done, today: today, firstDay: habit.firstDay, weekdays: habit.weekdays, onTap: toggle)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -78,7 +78,7 @@ struct HabitDetailView: View {
         Button { editing = true } label: {
             Text(habit.notes)
                 .font(.subheadline)
-                .foregroundStyle(Graphite.textSecondary)
+                .foregroundStyle(Graphite.textPrimary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
@@ -149,6 +149,7 @@ private struct MonthCalendar: View {
     let today: Day
     /// The start of the habit's history; the calendar reaches back at least this far.
     let firstDay: Day
+    let weekdays: Int
     let onTap: (Day) -> Void
 
     /// The month on screen. `nil` until the user changes month, meaning this month.
@@ -173,7 +174,7 @@ private struct MonthCalendar: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(months, id: \.self) { month in
-                        MonthPage(month: month, done: done, today: today, firstWeekday: firstWeekday, onTap: onTap)
+                        MonthPage(month: month, done: done, today: today, weekdays: weekdays, firstWeekday: firstWeekday, onTap: onTap)
                             .padding(.horizontal, inset)
                             .containerRelativeFrame(.horizontal)
                     }
@@ -244,6 +245,7 @@ private struct MonthPage: View {
     let month: Month
     let done: Set<Day>
     let today: Day
+    let weekdays: Int
     let firstWeekday: Int
     let onTap: (Day) -> Void
 
@@ -258,7 +260,7 @@ private struct MonthPage: View {
                         let day = start.adding(days: row * 7 + column)
                         Group {
                             if Month(day) == month {
-                                DayCell(day: day, isDone: done.contains(day), today: today, onTap: onTap)
+                                DayCell(day: day, isDone: done.contains(day), isScheduled: weekdays & (1 << (day.weekday - 1)) != 0, today: today, onTap: onTap)
                             } else {
                                 Color.clear
                             }
@@ -280,6 +282,7 @@ private struct DayCell: View {
 
     let day: Day
     let isDone: Bool
+    let isScheduled: Bool
     let today: Day
     let onTap: (Day) -> Void
 
@@ -292,6 +295,7 @@ private struct DayCell: View {
             Button { onTap(day) } label: {
                 ZStack {
                     CheckDot(diameter: Self.diameter, isDone: isDone)
+                        .opacity(isScheduled || isDone ? 1 : 0.35)
                     number
                         .foregroundStyle(isDone ? Graphite.background : Graphite.textPrimary)
                 }
@@ -305,6 +309,7 @@ private struct DayCell: View {
             .buttonStyle(CheckDotButtonStyle())
             .accessibilityLabel(Text(day.date(), format: .dateTime.weekday(.wide).month(.wide).day().year()))
             .accessibilityValue(isDone ? Text("Completed") : Text("Not completed"))
+            .accessibilityHint(isScheduled ? Text("Scheduled day") : Text("Rest day"))
         }
     }
 

@@ -4,15 +4,22 @@ import SwiftData
 /// The habit store, shared by the app and its widgets through an App Group.
 nonisolated enum Store {
     static let appGroup = "group.dev.noky.etch"
+    static let cloudContainer = "iCloud.dev.noky.etch"
 
     static let schema = Schema([Habit.self, CheckIn.self])
 
-    /// Opens the shared store. On this device only: no CloudKit, no network.
+    /// Opens the App Group store with private iCloud sync. In-memory stores stay local for tests.
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
+        #if targetEnvironment(simulator)
+        // The test host and unsigned simulator builds have no usable CloudKit entitlement.
+        let cloudDatabase: ModelConfiguration.CloudKitDatabase = .none
+        #else
+        let cloudDatabase: ModelConfiguration.CloudKitDatabase = .private(cloudContainer)
+        #endif
         let configuration = if inMemory {
             ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         } else {
-            ModelConfiguration(schema: schema, groupContainer: .identifier(appGroup), cloudKitDatabase: .none)
+            ModelConfiguration(schema: schema, groupContainer: .identifier(appGroup), cloudKitDatabase: cloudDatabase)
         }
         return try ModelContainer(for: schema, configurations: configuration)
     }
@@ -43,6 +50,12 @@ nonisolated enum Store {
 
     private static let widgetEditKey = "widgetEdit"
     private static var defaults: UserDefaults? { UserDefaults(suiteName: appGroup) }
+
+    static var dayEndHour: Int {
+        min(max(defaults?.integer(forKey: "dayEndHour") ?? 0, 0), 5)
+    }
+
+    static var today: Day { Day.today(dayEndsAtHour: dayEndHour) }
 
     /// Called by a widget after it changes the store, so the app knows its in-memory copy is stale.
     static func noteWidgetEdit() {

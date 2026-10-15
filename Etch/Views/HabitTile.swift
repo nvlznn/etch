@@ -12,39 +12,73 @@ struct HabitTile: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .title) private var dotDiameter: CGFloat = 56
     @State private var lastToggle = ToggleEvent()
+    @State private var showsNote = false
 
     var body: some View {
         let done = habit.isDone(on: day)
+        let scheduled = habit.isScheduled(on: day)
 
         VStack(spacing: 10) {
-            Text(habit.name)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(Graphite.textPrimary)
-                .lineLimit(2, reservesSpace: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            Button { showsNote = true } label: {
+                Text(habit.name)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Graphite.textPrimary)
+                    .lineLimit(2, reservesSpace: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text("Show note"))
 
             Button(action: toggle) {
-                CheckDot(diameter: min(dotDiameter, 112), isDone: done)
+                ZStack {
+                    if scheduled || done {
+                        CheckDot(diameter: min(dotDiameter, 112), isDone: done)
+                    } else {
+                        Circle()
+                            .fill(Graphite.textSecondary)
+                            .frame(width: 20, height: 20)
+                    }
+                }
+                .frame(width: min(dotDiameter, 112), height: min(dotDiameter, 112))
             }
             .buttonStyle(CheckDotButtonStyle())
+            .accessibilityLabel(accessibilityLabel(done: done))
+            .accessibilityValue(scheduled ? Text("Scheduled day") : Text("Rest day"))
         }
         .padding(12)
         .graphiteCard()
         .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous))
         .contextMenu {
+            if !habit.notes.isEmpty { Button("Note", systemImage: "text.alignleft") { showsNote = true } }
             Button("Edit", systemImage: "pencil", action: onEdit)
             DeleteHabitButton(action: onDelete)
+        }
+        .sheet(isPresented: $showsNote) {
+            NavigationStack {
+                ScrollView {
+                    Text(habit.notes.isEmpty ? String(localized: "No note yet") : habit.notes)
+                        .font(.body)
+                        .foregroundStyle(habit.notes.isEmpty ? Graphite.textSecondary : Graphite.textPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(20)
+                }
+                .background { GraphiteBackground() }
+                .navigationTitle(habit.name)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Close", systemImage: "xmark") { showsNote = false }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+            .presentationBackground { GraphiteBackground() }
         }
         // Keyed to taps on this tile only, so backfilling today from the detail page doesn't buzz twice.
         .sensoryFeedback(trigger: lastToggle) { _, event in
             event.filled ? .impact(weight: .medium) : .impact(weight: .light)
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel(done: done))
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction(.default, toggle)
-        .accessibilityAction(named: Text("Edit"), onEdit)
-        .accessibilityAction(named: Text("Delete"), onDelete)
     }
 
     private func accessibilityLabel(done: Bool) -> Text {

@@ -39,6 +39,13 @@ nonisolated struct Day: Hashable, Comparable, Sendable {
         Day(now, timeZone: timeZone)
     }
 
+    /// The habit day rolls over at `dayEndsAtHour` in local time (0...5).
+    static func today(timeZone: TimeZone = .current, now: Date = .now, dayEndsAtHour: Int) -> Day {
+        let day = Day(now, timeZone: timeZone)
+        let hour = Calendar(identifier: .gregorian).dateComponents(in: timeZone, from: now).hour ?? 0
+        return hour < min(max(dayEndsAtHour, 0), 5) ? day.adding(days: -1) : day
+    }
+
     /// The stored form, e.g. `20261011`.
     var yyyyMMdd: Int {
         let (y, m, d) = civil

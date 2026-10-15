@@ -37,7 +37,7 @@ struct EtchApp: App {
     private static func makeContainer() -> ModelContainer {
         var inMemory = false
         #if DEBUG
-        inMemory = DebugLaunch.inMemory
+        inMemory = DebugLaunch.inMemory || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         #endif
 
         if !inMemory { Store.moveIntoAppGroupIfNeeded() }

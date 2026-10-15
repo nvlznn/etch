@@ -3,8 +3,10 @@
 A minimalist habit tracker for iPhone (iOS 26+). Black, white and gray only: flat cards with a
 faint sheen on their edges, floating on pure black. Tap a habit's circle to fill it with white, for
 today or any earlier day; the Log shows each habit's last 26 weeks as a dot grid, and each habit's
-page has a month calendar for editing its history. Home Screen widgets in small, medium and large
-let you check in without opening the app. Free, unlimited habits, no accounts, no network.
+page has a month calendar for editing its history. Set the weekdays when each habit is due; rest
+days do not break a streak. Home Screen widgets in small, medium and large let you check in
+without opening the app. Habits and check-ins sync through the user's private iCloud database.
+The website source is in [`website/`](website/).
 
 English is the development language; Traditional Chinese (zh-Hant) is a full translation in
 `Shared/Localizable.xcstrings`, shared by the app and the widgets.
@@ -13,8 +15,13 @@ English is the development language; Traditional Chinese (zh-Hant) is a full tra
 
 Open `Etch.xcodeproj` in Xcode 26 or later and run the **Etch** scheme. Set your team under
 Signing & Capabilities before running on a device, for both the **Etch** and **EtchWidgets**
-targets. Both need the App Group `group.dev.noky.etch`: the habit store lives there so the widgets
-can read it. On first launch the app copies a store from before the App Group into it.
+targets. Both need the App Group `group.dev.noky.etch` and CloudKit container
+`iCloud.dev.noky.etch`: the habit store lives in the App Group and syncs through CloudKit on
+signed devices. The app also needs the Remote notifications background mode. The simulator uses a
+local store so unsigned builds and tests work; verify iCloud sync on two signed devices using the
+same Apple Account. Before an App Store release, promote the CloudKit development schema to
+production in CloudKit Console. On first launch the app copies a store from before the App Group
+into it.
 
 ```sh
 # Unit tests (Day, Stats) and UI tests (all flows), on any iOS 26+ simulator
@@ -32,7 +39,7 @@ simulator doesn't report hitch rates, so run it on a device for meaningful numbe
 | `Shared/` | Compiled into both the app and the widgets: `Day` and `Month` (local calendar days as `yyyyMMdd`, week and month layout), the SwiftData models, `Store` (the App Group store), the palette (`Graphite.swift` explains every color), `DotGrid`, `CheckDot` and the string catalog. |
 | `Etch/Design/` | The rest of the design system: cards, button styles, the component catalog. |
 | `Etch/Core/` | `Stats` (streaks, totals). Pure, tested. |
-| `Etch/Views/` | The two tabs, the detail page and the editor sheet. |
+| `Etch/Views/` | Check-In, Log, Settings, the detail page and the editor sheet. |
 | `EtchWidgets/` | The widget extension: a timeline of today's habits and an App Intent that checks in from the Home Screen. |
 | `EtchTests/` | Unit tests (Swift Testing). |
 | `EtchUITests/` | End-to-end flows with screenshots attached to the results. |

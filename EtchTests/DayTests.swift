@@ -55,6 +55,14 @@ struct DayTests {
         #expect(Day(Date("2026-10-11T16:00:00Z"), timeZone: .taipei) == Day(20261012))
     }
 
+    @Test func customDayEndUsesLocalClock() {
+        let justBefore = Date("2026-10-11T18:59:59Z") // Oct 12, 02:59:59 Taipei
+        let atBoundary = Date("2026-10-11T19:00:00Z") // Oct 12, 03:00 Taipei
+        #expect(Day.today(timeZone: .taipei, now: justBefore, dayEndsAtHour: 3) == Day(20261011))
+        #expect(Day.today(timeZone: .taipei, now: atBoundary, dayEndsAtHour: 3) == Day(20261012))
+        #expect(Day.today(timeZone: .taipei, now: justBefore, dayEndsAtHour: 0) == Day(20261012))
+    }
+
     @Test @MainActor func flyingTaipeiToTokyoDoesNotDuplicateADay() throws {
         try withHabit { habit in
             // Morning check-in in Taipei: 09:00 local.
@@ -67,8 +75,8 @@ struct DayTests {
             #expect(habit.isDone(on: evening))
             habit.setDone(true, on: evening)
 
-            #expect(habit.checkIns.count == 1)
-            #expect(habit.checkIns.first?.day == 20261011)
+            #expect(habit.checkIns?.count == 1)
+            #expect(habit.checkIns?.first?.day == 20261011)
         }
     }
 
@@ -76,10 +84,10 @@ struct DayTests {
         try withHabit { habit in
             habit.setDone(true, on: Day(20261011))
             habit.setDone(true, on: Day(20261011))
-            #expect(habit.checkIns.count == 1)
+            #expect(habit.checkIns?.count == 1)
 
             habit.toggle(on: Day(20261011))
-            #expect(habit.checkIns.isEmpty)
+            #expect(habit.checkIns?.isEmpty != false)
             #expect(!habit.isDone(on: Day(20261011)))
         }
     }

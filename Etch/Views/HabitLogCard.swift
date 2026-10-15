@@ -30,18 +30,28 @@ struct HabitLogCard: View {
 
     var body: some View {
         let done = habit.doneDays
+        let streak = Stats(days: done, today: today, weekdays: habit.weekdays).currentStreak
 
         VStack(alignment: .leading, spacing: 8) {
-            Text(habit.name)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(Graphite.textPrimary)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 2)
+            HStack(spacing: 8) {
+                Text(habit.name)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Graphite.textPrimary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: "flame.fill")
+                    .accessibilityHidden(true)
+                Text(streak, format: .number)
+                    .monospacedDigit()
+            }
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(Graphite.textSecondary)
+            .padding(.horizontal, 2)
 
             switch span {
             case .week: WeekRow(done: done, today: today)
-            case .halfYear: DotGrid(grid: grid, done: done, today: today)
+            case .halfYear: DotGrid(grid: grid, done: done, today: today, weekdays: habit.weekdays, showsRestDays: false)
             }
         }
         .padding(12)
@@ -54,6 +64,7 @@ struct HabitLogCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(habit.name))
         .accessibilityValue(accessibilityValue(done: done))
+        .accessibilityHint(Text(verbatim: "\(String(localized: "Current Streak")): \(streak)"))
     }
 
     private var grid: WeekGrid {

@@ -51,6 +51,7 @@ private struct TodayList: View {
                     TodayButton(habit: habit, today: entry.today) { done in
                         HStack(spacing: 8) {
                             CheckDot(diameter: 20, isDone: done)
+                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
                             Text(habit.name)
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -79,6 +80,7 @@ private struct TodayTiles: View {
                     TodayButton(habit: habit, today: entry.today) { done in
                         VStack(spacing: 8) {
                             CheckDot(diameter: 50, isDone: done)
+                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
                             Text(habit.name)
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -116,9 +118,10 @@ private struct RecentLog: View {
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             CheckDot(diameter: 20, isDone: done)
+                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
                         }
                     }
-                    DotGrid(grid: grid, done: habit.done, today: entry.today)
+                    DotGrid(grid: grid, done: habit.done, today: entry.today, weekdays: habit.weekdays)
                 }
             }
             Spacer(minLength: 0)
@@ -133,13 +136,14 @@ private struct TodayHeader: View {
     let entry: HabitsEntry
 
     var body: some View {
-        let done = entry.habits.count { $0.done.contains(entry.today) }
+        let due = entry.habits.filter { $0.weekdays & (1 << (entry.today.weekday - 1)) != 0 }
+        let done = due.count { $0.done.contains(entry.today) }
         HStack(alignment: .firstTextBaseline) {
             Text(entry.today.date(), format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .foregroundStyle(Graphite.textSecondary)
                 .lineLimit(1)
             Spacer(minLength: 4)
-            Text(verbatim: "\(done)/\(entry.habits.count)")
+            Text(verbatim: "\(done)/\(due.count)")
                 .foregroundStyle(Graphite.textPrimary)
                 .monospacedDigit()
         }
@@ -160,6 +164,7 @@ private struct TodayButton<Label: View>: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today"))
+        .accessibilityHint(habit.weekdays & (1 << (today.weekday - 1)) != 0 ? Text("Scheduled day") : Text("Rest day"))
     }
 }
 

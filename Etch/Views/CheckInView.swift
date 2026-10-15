@@ -18,6 +18,7 @@ struct CheckInView: View {
     @State private var daysAgo = 0
     /// The tile being dragged to a new place, if any.
     @State private var dragging: Habit?
+    @State private var displayOrder: [PersistentIdentifier] = []
     /// Counts the places a dragged tile has moved through, for a tick of haptic feedback each time.
     @State private var moves = 0
 
@@ -34,7 +35,7 @@ struct CheckInView: View {
                         .padding(.bottom, 8)
 
                     LazyVGrid(columns: columns, spacing: 14) {
-                        ForEach(habits) { habit in
+                        ForEach(orderedHabits) { habit in
                             HabitTile(
                                 habit: habit,
                                 day: today.adding(days: -daysAgo),
@@ -43,16 +44,18 @@ struct CheckInView: View {
                             )
                             .onDrag {
                                 dragging = habit
+                                displayOrder = habits.map(\.persistentModelID)
                                 return NSItemProvider(object: habit.name as NSString)
                             }
                             .onDrop(of: [.text], delegate: TileDropDelegate(
-                                target: habit, habits: habits, dragging: $dragging, moves: $moves
+                                target: habit, habits: habits, order: $displayOrder,
+                                dragging: $dragging, moves: $moves
                             ))
                         }
                     }
                     // Dropping in a gap between tiles ends the drag where the tile already is.
                     .onDrop(of: [.text], isTargeted: nil) { _ in
-                        dragging = nil
+                        finishDrag()
                         return true
                     }
                     .sensoryFeedback(.selection, trigger: moves)
@@ -81,22 +84,39 @@ struct CheckInView: View {
         }
         return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
     }
+
+    private var orderedHabits: [Habit] {
+        guard !displayOrder.isEmpty else { return habits }
+        return habits.sorted {
+            (displayOrder.firstIndex(of: $0.persistentModelID) ?? Int.max) <
+            (displayOrder.firstIndex(of: $1.persistentModelID) ?? Int.max)
+        }
+    }
+
+    private func finishDrag() {
+        for (index, habit) in orderedHabits.enumerated() where habit.sortOrder != index {
+            habit.sortOrder = index
+        }
+        dragging = nil
+        displayOrder = []
+    }
 }
 
 /// Reorders live while a tile is dragged: entering another tile's place moves the dragged one there.
 private struct TileDropDelegate: DropDelegate {
     let target: Habit
     let habits: [Habit]
+    @Binding var order: [PersistentIdentifier]
     @Binding var dragging: Habit?
     @Binding var moves: Int
 
     func dropEntered(info: DropInfo) {
         guard let dragging, dragging != target,
-              let from = habits.firstIndex(of: dragging),
-              let to = habits.firstIndex(of: target)
+              let from = order.firstIndex(of: dragging.persistentModelID),
+              let to = order.firstIndex(of: target.persistentModelID)
         else { return }
-        withAnimation(.snappy(duration: 0.25)) {
-            Habit.reorder(habits, fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        withAnimation(.interactiveSpring(response: 0.32, dampingFraction: 0.82)) {
+            order.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
         }
         moves += 1
     }
@@ -106,7 +126,13 @@ private struct TileDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
+        for (index, id) in order.enumerated() {
+            if let habit = habits.first(where: { $0.persistentModelID == id }) {
+                habit.sortOrder = index
+            }
+        }
         dragging = nil
+        order = []
         return true
     }
 }
@@ -125,7 +151,6 @@ private struct DaySwitcher: View {
             Text(today.adding(days: -daysAgo).date(), format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Graphite.textPrimary)
-                .contentTransition(.numericText(countsDown: true))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
 
@@ -140,7 +165,9 @@ private struct DaySwitcher: View {
 
     private func arrow(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
         Button {
-            withAnimation(.snappy(duration: 0.2), action)
+            var transaction = Transaction(animation: nil)
+            transaction.disablesAnimations = true
+            withTransaction(transaction, action)
         } label: {
             Label(title, systemImage: systemImage)
                 .labelStyle(.iconOnly)

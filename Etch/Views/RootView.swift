@@ -9,11 +9,12 @@ extension EnvironmentValues {
 
 struct RootView: View {
     private enum Section: Hashable {
-        case checkIn, log
+        case checkIn, log, settings
     }
 
     @State private var section = RootView.initialSection
-    @State private var today = Day.today()
+    @State private var today = Store.today
+    @AppStorage("dayEndHour", store: UserDefaults(suiteName: Store.appGroup)) private var dayEndHour = 0
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -34,8 +35,11 @@ struct RootView: View {
             Tab("Log", systemImage: "circle.grid.3x3.fill", value: .log) {
                 LogView()
             }
-            Tab("Check-In", systemImage: "circle.inset.filled", value: .checkIn) {
+            Tab("Check-In", systemImage: "circle", value: .checkIn) {
                 CheckInView()
+            }
+            Tab("Settings", systemImage: "gearshape", value: .settings) {
+                SettingsView()
             }
         }
         .environment(\.today, today)
@@ -48,12 +52,16 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
             refreshToday()
         }
+        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { _ in
+            refreshToday()
+        }
+        .onChange(of: dayEndHour) { _, _ in refreshToday() }
     }
 
     private func refreshToday() {
         // Pick up a new time zone after travel before working out which day it is.
         NSTimeZone.resetSystemTimeZone()
-        let now = Day.today()
+        let now = Store.today
         if now != today { today = now }
     }
 

@@ -6,6 +6,7 @@ import SwiftData
 ///
 ///     -EtchInMemory       start from a throwaway, empty store
 ///     -EtchSeed <n>       add n habits with up to a year of history (only into an empty store)
+///     -EtchScreenshots    add the nine App Store screenshot habits, named in the app's language
 ///     -EtchCatalog        show the design-system catalog instead of the app
 ///     -EtchTab log        start on the Log tab
 ///     -EtchOpenFirst      on the Log tab, open the first habit's detail page
@@ -25,6 +26,10 @@ enum DebugLaunch {
     }
 
     static func seedIfRequested(_ context: ModelContext) {
+        if arguments.contains("-EtchScreenshots"), (try? context.fetchCount(FetchDescriptor<Habit>())) == 0 {
+            seedShowcase(into: context)
+            return
+        }
         guard let count = value(after: "-EtchSeed").flatMap(Int.init), count > 0,
               (try? context.fetchCount(FetchDescriptor<Habit>())) == 0
         else { return }
@@ -53,7 +58,76 @@ enum DebugLaunch {
             context.insert(habit)
             let rate = 0.5 + Double(index % 5) * 0.1
             for offset in 0...age where random.unit() < rate {
-                habit.checkIns.append(CheckIn(day: firstDay.adding(days: offset)))
+                habit.checkIns = (habit.checkIns ?? []) + [CheckIn(day: firstDay.adding(days: offset))]
+            }
+        }
+        try? context.save()
+    }
+}
+
+extension DebugLaunch {
+    private struct Showcase {
+        let name: (en: String, zh: String)
+        var note: (en: String, zh: String) = ("", "")
+        /// Share of days done.
+        let rate: Double
+        /// Weekdays (1 = Sunday) the habit is planned for; nil for every day.
+        var weekdays: Set<Int>? = nil
+        var age = 400
+        /// The last seven days, oldest first and ending today ("1" = done), so the 7-day Log looks deliberate.
+        let week: String
+    }
+
+    private static let showcase: [Showcase] = [
+        Showcase(name: ("Read 20 pages", "閱讀 20 頁"),
+                 note: ("Before bed, paper books only. Currently: The Remains of the Day.", "睡前讀，只讀紙本書。正在讀：《長日將盡》。"),
+                 rate: 0.86, week: "1111111"),
+        Showcase(name: ("Meditate", "冥想"), note: ("10 minutes after waking up.", "起床後 10 分鐘。"),
+                 rate: 0.8, week: "1100111"),
+        Showcase(name: ("Run", "跑步"), note: ("5 km along the river.", "河濱 5 公里。"),
+                 rate: 0.85, weekdays: [2, 5, 7], week: "0101010"),
+        Showcase(name: ("Drink water", "喝水"), note: ("2 liters.", "2000 毫升。"), rate: 0.9, week: "1111011"),
+        Showcase(name: ("Stretch", "伸展"), rate: 0.72, week: "1110110"),
+        Showcase(name: ("Journal", "寫日記"), rate: 0.76, week: "1011101"),
+        Showcase(name: ("Practice piano", "練鋼琴"), note: ("Scales first, then the Chopin nocturne.", "先練音階，再練蕭邦夜曲。"),
+                 rate: 0.66, week: "0110100"),
+        Showcase(name: ("Learn Japanese", "學日文"), rate: 0.84, age: 52, week: "1111011"),
+        Showcase(name: ("Lights out by 11", "11 點前睡覺"), rate: 0.7, week: "1011110"),
+    ]
+
+    /// Streaky, believable histories for the App Store screenshots: a done day is usually followed by another.
+    static func seedShowcase(into context: ModelContext) {
+        let chinese = Locale.preferredLanguages.first?.hasPrefix("zh") == true
+        var random = SeededRandom(seed: 11)
+        let today = Day.today()
+        let calendar = Calendar.current
+        for (index, item) in showcase.enumerated() {
+            let firstDay = today.adding(days: -item.age)
+            let habit = Habit(
+                name: chinese ? item.name.zh : item.name.en,
+                sortOrder: index,
+                createdAt: firstDay.date().addingTimeInterval(9 * 3600)
+            )
+            habit.notes = chinese ? item.note.zh : item.note.en
+            context.insert(habit)
+
+            // Two-state chain: stay done with `keep`; start again at the rate that makes `rate` the long-run share.
+            let keep = 0.9
+            let start = item.rate * (1 - keep) / (1 - item.rate)
+            var done = false
+            for offset in 0..<item.age - 6 {
+                let day = firstDay.adding(days: offset)
+                if let weekdays = item.weekdays {
+                    done = weekdays.contains(calendar.component(.weekday, from: day.date()))
+                        ? random.unit() < item.rate
+                        : random.unit() < 0.04
+                } else {
+                    done = random.unit() < (done ? keep : start)
+                }
+                if done { habit.checkIns = (habit.checkIns ?? []) + [CheckIn(day: day)] }
+            }
+            for (offset, mark) in item.week.enumerated() where mark == "1" {
+                habit.checkIns = (habit.checkIns ?? []) + [CheckIn(day: today.adding(days: offset - 6))]
             }
         }
         try? context.save()

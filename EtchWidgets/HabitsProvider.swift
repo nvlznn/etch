@@ -8,6 +8,7 @@ struct HabitSnapshot: Identifiable, Hashable {
     let id: String
     let name: String
     let done: Set<Day>
+    let weekdays: Int
 }
 
 struct HabitsEntry: TimelineEntry {
@@ -30,19 +31,19 @@ struct HabitsProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<HabitsEntry>) -> Void) {
         let entry = Self.load()
         // Nothing changes on its own until the day does. Check-ins reload the timeline themselves.
-        let midnight = entry.today.adding(days: 1).date()
-        completion(Timeline(entries: [entry], policy: .after(midnight)))
+        let nextBoundary = Calendar.current.date(byAdding: .hour, value: Store.dayEndHour, to: entry.today.adding(days: 1).date()) ?? .now.addingTimeInterval(3600)
+        completion(Timeline(entries: [entry], policy: .after(nextBoundary)))
     }
 
     static func load() -> HabitsEntry {
-        let today = Day.today()
+        let today = Store.today
         let habits: [Habit] = (try? Store.makeContainer()).flatMap { container in
             let all = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.sortOrder), SortDescriptor(\.createdAt)])
             return try? ModelContext(container).fetch(all)
         } ?? []
         let snapshots = habits.compactMap { habit in
             HabitID.encode(habit.persistentModelID).map {
-                HabitSnapshot(id: $0, name: habit.name, done: habit.doneDays)
+                HabitSnapshot(id: $0, name: habit.name, done: habit.doneDays, weekdays: habit.weekdays)
             }
         }
         return HabitsEntry(date: .now, today: today, habits: snapshots)
@@ -67,7 +68,7 @@ extension HabitsEntry {
         let names = ["Read 20 pages", "Meditate", "Run", "Journal"]
         let habits = names.enumerated().map { index, name in
             let done = (0..<210).filter { ($0 * (index + 3)) % 7 < 4 }.map { today.adding(days: -$0) }
-            return HabitSnapshot(id: "sample-\(index)", name: name, done: Set(done))
+            return HabitSnapshot(id: "sample-\(index)", name: name, done: Set(done), weekdays: 127)
         }
         return HabitsEntry(date: .now, today: today, habits: habits)
     }

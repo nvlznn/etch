@@ -10,8 +10,7 @@ enum HabitEditorTarget: Identifiable {
     }
 }
 
-/// Adds a habit or edits one. A habit is a name and an optional note: no icon, color or
-/// schedule.
+/// Adds a habit or edits its name, note, and scheduled weekdays.
 ///
 /// Opens at full height so the sheet rises once; a half-height sheet would stop halfway and then
 /// jump again when the keyboard came up.
@@ -22,6 +21,7 @@ struct HabitEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name: String
     @State private var notes: String
+    @State private var weekdays: Int
     @FocusState private var focus: Field?
 
     private enum Field {
@@ -33,9 +33,11 @@ struct HabitEditorSheet: View {
         if case .edit(let habit) = target {
             _name = State(initialValue: habit.name)
             _notes = State(initialValue: habit.notes)
+            _weekdays = State(initialValue: habit.weekdays)
         } else {
             _name = State(initialValue: "")
             _notes = State(initialValue: "")
+            _weekdays = State(initialValue: 127)
         }
     }
 
@@ -60,13 +62,41 @@ struct HabitEditorSheet: View {
 
                     TextField(
                         "Note", text: $notes,
-                        prompt: Text("Note (optional)").foregroundStyle(Graphite.textSecondary),
+                        prompt: Text("Note").foregroundStyle(Graphite.textSecondary),
                         axis: .vertical
                     )
                     .font(.body)
                     .lineLimit(4...12)
                     .focused($focus, equals: .notes)
                     .fieldCard()
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Frequency")
+                            .font(.headline)
+                        HStack(spacing: 6) {
+                            ForEach(0..<7, id: \.self) { offset in
+                                let index = (Calendar.current.firstWeekday - 1 + offset) % 7
+                                let selected = weekdays & (1 << index) != 0
+                                Button {
+                                    let bit = 1 << index
+                                    if selected && weekdays == bit { return }
+                                    weekdays ^= bit
+                                } label: {
+                                    Text(Calendar.current.veryShortStandaloneWeekdaySymbols[index])
+                                        .font(.footnote.weight(.semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 36)
+                                        .background(selected ? Graphite.done : Graphite.notDone, in: Circle())
+                                        .foregroundStyle(selected ? Graphite.background : Graphite.textPrimary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(Text(Calendar.current.weekdaySymbols[index]))
+                                .accessibilityAddTraits(selected ? .isSelected : [])
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .graphiteCard()
                 }
                 .foregroundStyle(Graphite.textPrimary)
                 .padding(20)
@@ -99,10 +129,12 @@ struct HabitEditorSheet: View {
         case .new:
             let habit = Habit(name: trimmedName, sortOrder: Habit.nextSortOrder(in: modelContext))
             habit.notes = trimmedNotes
+            habit.weekdays = weekdays
             modelContext.insert(habit)
         case .edit(let habit):
             habit.name = trimmedName
             if habit.notes != trimmedNotes { habit.notes = trimmedNotes }
+            if habit.weekdays != weekdays { habit.weekdays = weekdays }
         }
         dismiss()
     }
@@ -138,13 +170,12 @@ struct DeleteHabitButton: View {
 extension View {
     /// Asks before deleting the habit in `habit`, since that also deletes its whole history.
     func confirmingDeletion(of habit: Binding<Habit?>, perform delete: @escaping (Habit) -> Void) -> some View {
-        confirmationDialog(
+        alert(
             habit.wrappedValue.map { Text("Delete “\($0.name)”?") } ?? Text(verbatim: ""),
             isPresented: Binding(
                 get: { habit.wrappedValue != nil },
                 set: { if !$0 { habit.wrappedValue = nil } }
             ),
-            titleVisibility: .visible,
             presenting: habit.wrappedValue
         ) { target in
             Button("Delete Habit", role: .destructive) { delete(target) }

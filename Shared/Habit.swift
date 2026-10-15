@@ -4,12 +4,14 @@ import SwiftUI
 
 @Model
 final class Habit {
-    var name: String
-    var createdAt: Date
-    var sortOrder: Int
+    var name: String = ""
+    var createdAt: Date = Date.now
+    var sortOrder: Int = 0
+    /// Bits 0...6 are Sunday...Saturday. All days is the default for existing habits.
+    var weekdays: Int = 127
     /// Anything the user wants to remember about the habit: why, how, when. Empty when unused.
     var notes: String = ""
-    @Relationship(deleteRule: .cascade, inverse: \CheckIn.habit) var checkIns: [CheckIn] = []
+    @Relationship(deleteRule: .cascade, inverse: \CheckIn.habit) var checkIns: [CheckIn]?
 
     init(name: String, sortOrder: Int, createdAt: Date = .now) {
         self.name = name
@@ -21,20 +23,20 @@ final class Habit {
 extension Habit {
     /// Every day this habit was done.
     var doneDays: Set<Day> {
-        Set(checkIns.compactMap { Day(yyyyMMdd: $0.day) })
+        Set((checkIns ?? []).compactMap { Day(yyyyMMdd: $0.day) })
     }
 
     /// How far back this habit's history goes: the day it was created, or the earliest check-in
     /// if one was backfilled before that.
     var firstDay: Day {
         let created = Day(createdAt)
-        let earliest = checkIns.lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
+        let earliest = (checkIns ?? []).lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
         return min(created, earliest ?? created)
     }
 
     func isDone(on day: Day) -> Bool {
         let key = day.yyyyMMdd
-        return checkIns.contains { $0.day == key }
+        return (checkIns ?? []).contains { $0.day == key }
     }
 
     /// Records or clears `day`. A habit never has more than one check-in per day.
@@ -42,14 +44,20 @@ extension Habit {
         let key = day.yyyyMMdd
         if done {
             guard !isDone(on: day) else { return }
-            checkIns.append(CheckIn(day: day))
+            var records = checkIns ?? []
+            records.append(CheckIn(day: day))
+            checkIns = records
         } else {
-            let removed = checkIns.filter { $0.day == key }
-            checkIns.removeAll { $0.day == key }
+            let removed = (checkIns ?? []).filter { $0.day == key }
+            checkIns = (checkIns ?? []).filter { $0.day != key }
             for checkIn in removed {
                 modelContext?.delete(checkIn)
             }
         }
+    }
+
+    func isScheduled(on day: Day) -> Bool {
+        weekdays & (1 << (day.weekday - 1)) != 0
     }
 
     /// Flips `day` and returns the new state.

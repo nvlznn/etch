@@ -63,6 +63,54 @@ struct StatsTests {
         #expect(Stats(days: days(0, 0, -1), today: today).total == 2)
     }
 
+    @Test func restDaysDoNotBreakOrIncreaseStreaks() {
+        // Sundays and Wednesdays are due. Oct 11, 2026 is a Sunday.
+        let sundayAndWednesday = (1 << 0) | (1 << 3)
+        let completed = [Day(20261007), Day(20261011)]
+        let stats = Stats(days: completed, today: Day(20261012), weekdays: sundayAndWednesday)
+        #expect(stats.currentStreak == 2)
+        #expect(stats.longestStreak == 2)
+        #expect(stats.total == 2)
+
+        let missed = Stats(days: [Day(20261007)], today: Day(20261012), weekdays: sundayAndWednesday)
+        #expect(missed.currentStreak == 0)
+    }
+
+    @Test func checkingInOnRestDaysCountsWithoutMakingThemRequired() {
+        // Sundays and Wednesdays are due. Thursday and Friday are optional rest days.
+        let sundayAndWednesday = (1 << 0) | (1 << 3)
+        let stats = Stats(
+            days: [Day(20261007), Day(20261008), Day(20261009), Day(20261011)],
+            today: Day(20261012), weekdays: sundayAndWednesday
+        )
+        #expect(stats.currentStreak == 4)
+        #expect(stats.longestStreak == 4)
+        #expect(stats.total == 4)
+
+        // Missing Friday, also a rest day, leaves the other check-ins connected.
+        let skippedRest = Stats(
+            days: [Day(20261007), Day(20261008), Day(20261011)],
+            today: Day(20261012), weekdays: sundayAndWednesday
+        )
+        #expect(skippedRest.currentStreak == 3)
+        #expect(skippedRest.longestStreak == 3)
+
+        // A missed scheduled day still separates the runs, even with rest-day check-ins.
+        let missedScheduled = Stats(
+            days: [Day(20261007), Day(20261008), Day(20261012)],
+            today: Day(20261012), weekdays: sundayAndWednesday
+        )
+        #expect(missedScheduled.currentStreak == 1)
+        #expect(missedScheduled.longestStreak == 2)
+    }
+
+    @Test func scheduledTodayMayStillBeOpen() {
+        let sundays = 1 << 0
+        let stats = Stats(days: [Day(20261004)], today: Day(20261011), weekdays: sundays)
+        #expect(stats.currentStreak == 1)
+        #expect(stats.longestStreak == 1)
+    }
+
     // MARK: Backfilling
 
     @Test @MainActor func backfillingJoinsStreaks() throws {

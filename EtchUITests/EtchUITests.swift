@@ -156,6 +156,30 @@ final class EtchUITests: XCTestCase {
         snapshot("check-in today")
     }
 
+    func testCheckInDragReordersTiles() {
+        launch()
+        for name in ["Read", "Move"] {
+            app.buttons["Add Habit"].firstMatch.tap()
+            let field = app.textFields["Name"]
+            XCTAssertTrue(field.waitForExistence(timeout: 3))
+            field.typeText(name)
+            app.navigationBars.buttons["Done"].tap()
+        }
+
+        let read = app.buttons["Read, not done today"]
+        let move = app.buttons["Move, not done today"]
+        XCTAssertTrue(read.waitForExistence(timeout: 3))
+        XCTAssertTrue(move.waitForExistence(timeout: 3))
+        XCTAssertLessThan(read.frame.minX, move.frame.minX)
+
+        move.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+            .press(forDuration: 1.0, thenDragTo: read.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)))
+        XCTAssertTrue(waitUntil(move.frame.minX < read.frame.minX), "Dragging a Check-In tile changes its position")
+
+        app.tabBars.buttons["Log"].tap()
+        XCTAssertLessThan(app.buttons["Move"].frame.minY, app.buttons["Read"].frame.minY)
+    }
+
     func testLogWeekModeAndSwipeToCheckIn() {
         launch()
         app.buttons["Add Habit"].firstMatch.tap()

@@ -3,3 +3,6 @@ xcuserdata/
 DerivedData/
 build/
 *.xcresult
+
+# Deliverables made for the developer (screenshots, exports); not source
+outputs/
