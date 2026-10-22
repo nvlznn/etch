@@ -1,16 +1,24 @@
 import SwiftUI
 
-/// The circle you tap on the Check-In page: black until the habit is done today, then white.
+enum RestDayDot {
+    static func shows(on day: Day, firstCheckIn: Day?, weekdays: Int) -> Bool {
+        guard let firstCheckIn, day >= firstCheckIn else { return false }
+        return weekdays & (1 << (day.weekday - 1)) == 0
+    }
+}
+
+/// A day circle: black when due, gray on a rest day, and white when completed.
 struct CheckDot: View {
     let diameter: CGFloat
     var isDone = false
+    var isRest = false
 
     @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(Graphite.notDone)
+                .fill(isRest ? Graphite.rest : Graphite.notDone)
                 .overlay {
                     if contrast == .increased {
                         Circle().strokeBorder(Graphite.textSecondary, lineWidth: 1)

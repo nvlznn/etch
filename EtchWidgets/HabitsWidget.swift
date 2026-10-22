@@ -11,7 +11,7 @@ struct HabitsWidget: Widget {
                 .containerBackground(Graphite.card, for: .widget)
         }
         .configurationDisplayName("Habits")
-        .description("Check in from the Home Screen and see your recent days.")
+        .description("Check in and view recent days.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
@@ -23,7 +23,7 @@ struct HabitsWidgetView: View {
 
     var body: some View {
         if entry.habits.isEmpty {
-            Text("No habits yet")
+            Text("No habits")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Graphite.textSecondary)
                 .multilineTextAlignment(.center)
@@ -50,8 +50,7 @@ private struct TodayList: View {
                 ForEach(entry.habits.prefix(4)) { habit in
                     TodayButton(habit: habit, today: entry.today) { done in
                         HStack(spacing: 8) {
-                            CheckDot(diameter: 20, isDone: done)
-                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
+                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today))
                             Text(habit.name)
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -79,8 +78,7 @@ private struct TodayTiles: View {
                 ForEach(entry.habits.prefix(4)) { habit in
                     TodayButton(habit: habit, today: entry.today) { done in
                         VStack(spacing: 8) {
-                            CheckDot(diameter: 50, isDone: done)
-                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
+                            CheckDot(diameter: 50, isDone: done, isRest: habit.showsRestDot(on: entry.today))
                             Text(habit.name)
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -117,8 +115,7 @@ private struct RecentLog: View {
                                 .foregroundStyle(Graphite.textPrimary)
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            CheckDot(diameter: 20, isDone: done)
-                                .opacity(done || habit.weekdays & (1 << (entry.today.weekday - 1)) != 0 ? 1 : 0.35)
+                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today))
                         }
                     }
                     DotGrid(grid: grid, done: habit.done, today: entry.today, weekdays: habit.weekdays)

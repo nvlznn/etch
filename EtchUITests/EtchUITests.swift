@@ -85,7 +85,7 @@ final class EtchUITests: XCTestCase {
 
         // Detail: stats, then backfill yesterday — before the habit was created, which is allowed.
         readCard.tap()
-        let current = app.otherElements["Current Streak"]
+        let current = app.otherElements["Streak"]
         XCTAssertTrue(current.waitForExistence(timeout: 3))
         XCTAssertEqual(current.value as? String, "1")
         XCTAssertEqual(app.otherElements["Total"].value as? String, "1")
@@ -98,14 +98,14 @@ final class EtchUITests: XCTestCase {
         yesterday.tap()
         XCTAssertEqual(yesterday.value as? String, "Completed")
         XCTAssertEqual(current.value as? String, "2")
-        XCTAssertEqual(app.otherElements["Longest Streak"].value as? String, "2")
+        XCTAssertEqual(app.otherElements["Best"].value as? String, "2")
         XCTAssertEqual(app.otherElements["Total"].value as? String, "2")
         snapshot("08 detail after backfill")
 
         // Delete from the detail page.
         app.navigationBars.buttons["More"].tap()
         app.buttons["Delete"].tap()
-        let confirm = app.buttons["Delete Habit"]
+        let confirm = app.alerts.buttons["Delete"]
         XCTAssertTrue(confirm.waitForExistence(timeout: 3))
         snapshot("09 delete confirmation")
         confirm.tap()
@@ -126,11 +126,11 @@ final class EtchUITests: XCTestCase {
 
         tile.press(forDuration: 1.2)
         app.buttons["Delete"].tap()
-        let confirm = app.buttons["Delete Habit"]
+        let confirm = app.alerts.buttons["Delete"]
         XCTAssertTrue(confirm.waitForExistence(timeout: 3))
         XCTAssertTrue(tile.exists, "Nothing is deleted until confirmed")
         confirm.tap()
-        XCTAssertTrue(app.staticTexts["No habits yet"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["No habits"].waitForExistence(timeout: 3))
     }
 
     func testCheckInOnAnotherDay() {
@@ -144,10 +144,10 @@ final class EtchUITests: XCTestCase {
         // Back a day, check in there; today is untouched.
         app.buttons["Previous Day"].tap()
         XCTAssertTrue(app.buttons["Next Day"].isEnabled)
-        let yesterday = app.buttons["Read, not done on \(tileDate(-1))"]
+        let yesterday = app.buttons["Read, not done \(tileDate(-1))"]
         XCTAssertTrue(yesterday.waitForExistence(timeout: 3))
         tapDimple(of: yesterday)
-        XCTAssertTrue(app.buttons["Read, done on \(tileDate(-1))"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Read, done \(tileDate(-1))"].waitForExistence(timeout: 3))
         snapshot("check-in yesterday")
 
         app.buttons["Next Day"].tap()
@@ -191,21 +191,21 @@ final class EtchUITests: XCTestCase {
         XCTAssertTrue(card.waitForExistence(timeout: 3))
         // The span is remembered across launches, so set it rather than assume it.
         app.buttons["26 Weeks"].tap()
-        XCTAssertTrue(waitUntil(card.value as? String == "0 days completed in the last 26 weeks"))
+        XCTAssertTrue(waitUntil(card.value as? String == "Completed 0 days in 26 weeks"))
 
         app.buttons["7 Days"].tap()
-        XCTAssertTrue(waitUntil(card.value as? String == "0 days completed in the last 7 days"))
+        XCTAssertTrue(waitUntil(card.value as? String == "Completed 0 of 7 days"))
         snapshot("log 7 days")
 
         // Swipe left to check in today; the change shows on Check-In too.
-        swipeToCheckIn(card, action: "Check In", expecting: "1 day completed in the last 7 days")
+        swipeToCheckIn(card, action: "Check In", expecting: "Completed 1 of 7 days")
         snapshot("log 7 days checked in")
         app.tabBars.buttons["Check-In"].tap()
         XCTAssertTrue(app.buttons["Read, done today"].waitForExistence(timeout: 3))
 
         // Swiping again undoes it.
         app.tabBars.buttons["Log"].tap()
-        swipeToCheckIn(card, action: "Uncheck", expecting: "0 days completed in the last 7 days")
+        swipeToCheckIn(card, action: "Uncheck", expecting: "Completed 0 of 7 days")
     }
 
     func testBackfillUpdatesStats() {

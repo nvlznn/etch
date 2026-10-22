@@ -31,16 +31,11 @@ struct HabitTile: View {
             .accessibilityHint(Text("Show note"))
 
             Button(action: toggle) {
-                ZStack {
-                    if scheduled || done {
-                        CheckDot(diameter: min(dotDiameter, 112), isDone: done)
-                    } else {
-                        Circle()
-                            .fill(Graphite.textSecondary)
-                            .frame(width: 20, height: 20)
-                    }
-                }
-                .frame(width: min(dotDiameter, 112), height: min(dotDiameter, 112))
+                CheckDot(
+                    diameter: min(dotDiameter, 112),
+                    isDone: done,
+                    isRest: RestDayDot.shows(on: day, firstCheckIn: habit.firstCheckInDay, weekdays: habit.weekdays)
+                )
             }
             .buttonStyle(CheckDotButtonStyle())
             .accessibilityLabel(accessibilityLabel(done: done))
@@ -57,7 +52,7 @@ struct HabitTile: View {
         .sheet(isPresented: $showsNote) {
             NavigationStack {
                 ScrollView {
-                    Text(habit.notes.isEmpty ? String(localized: "No note yet") : habit.notes)
+                    Text(habit.notes.isEmpty ? String(localized: "No note") : habit.notes)
                         .font(.body)
                         .foregroundStyle(habit.notes.isEmpty ? Graphite.textSecondary : Graphite.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -86,7 +81,7 @@ struct HabitTile: View {
             return done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today")
         }
         let date = day.date().formatted(.dateTime.weekday(.wide).month(.wide).day())
-        return done ? Text("\(habit.name), done on \(date)") : Text("\(habit.name), not done on \(date)")
+        return done ? Text("\(habit.name), done \(date)") : Text("\(habit.name), not done \(date)")
     }
 
     private func toggle() {

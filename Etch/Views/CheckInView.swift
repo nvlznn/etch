@@ -185,7 +185,7 @@ struct EmptyHabitsCard: View {
 
     var body: some View {
         VStack(spacing: 28) {
-            Text("No habits yet")
+            Text("No habits")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Graphite.textPrimary)
                 .multilineTextAlignment(.center)

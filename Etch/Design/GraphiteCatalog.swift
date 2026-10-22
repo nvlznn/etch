@@ -24,9 +24,10 @@ struct GraphiteCatalog: View {
                     }
                 }
 
-                section("Check dot: not done · done") {
+                section("Check dot: not done · rest · done") {
                     HStack(spacing: 24) {
                         CheckDot(diameter: 64)
+                        CheckDot(diameter: 64, isRest: true)
                         CheckDot(diameter: 64, isDone: true)
                     }
                 }
@@ -44,7 +45,7 @@ struct GraphiteCatalog: View {
                 section("Text") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(verbatim: "Primary — Read 20 pages").foregroundStyle(Graphite.textPrimary)
-                        Text(verbatim: "Secondary — Longest Streak").foregroundStyle(Graphite.textSecondary)
+                        Text(verbatim: "Secondary — Best").foregroundStyle(Graphite.textSecondary)
                     }
                     .font(.body)
                     .padding(16)

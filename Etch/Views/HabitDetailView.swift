@@ -94,9 +94,9 @@ struct HabitDetailView: View {
         let stacked = dynamicTypeSize.isAccessibilitySize
         let layout = stacked ? AnyLayout(VStackLayout(spacing: 16)) : AnyLayout(HStackLayout(spacing: 0))
         return layout {
-            StatItem(value: stats.currentStreak, title: "Current Streak")
+            StatItem(value: stats.currentStreak, title: "Streak")
             if !stacked { StatDivider() }
-            StatItem(value: stats.longestStreak, title: "Longest Streak")
+            StatItem(value: stats.longestStreak, title: "Best")
             if !stacked { StatDivider() }
             StatItem(value: stats.total, title: "Total")
         }
@@ -163,6 +163,7 @@ private struct MonthCalendar: View {
         // At least a year back, more if the history goes back further.
         let months = Month.range(from: min(Month(firstDay), thisMonth.adding(months: -11)), through: thisMonth)
         let current = shown ?? thisMonth
+        let firstCheckIn = done.min()
 
         VStack(spacing: 14) {
             header(current, earliest: months[0], latest: thisMonth)
@@ -174,7 +175,7 @@ private struct MonthCalendar: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(months, id: \.self) { month in
-                        MonthPage(month: month, done: done, today: today, weekdays: weekdays, firstWeekday: firstWeekday, onTap: onTap)
+                        MonthPage(month: month, done: done, today: today, weekdays: weekdays, firstCheckIn: firstCheckIn, firstWeekday: firstWeekday, onTap: onTap)
                             .padding(.horizontal, inset)
                             .containerRelativeFrame(.horizontal)
                     }
@@ -246,6 +247,7 @@ private struct MonthPage: View {
     let done: Set<Day>
     let today: Day
     let weekdays: Int
+    let firstCheckIn: Day?
     let firstWeekday: Int
     let onTap: (Day) -> Void
 
@@ -260,7 +262,14 @@ private struct MonthPage: View {
                         let day = start.adding(days: row * 7 + column)
                         Group {
                             if Month(day) == month {
-                                DayCell(day: day, isDone: done.contains(day), isScheduled: weekdays & (1 << (day.weekday - 1)) != 0, today: today, onTap: onTap)
+                                DayCell(
+                                    day: day,
+                                    isDone: done.contains(day),
+                                    isScheduled: weekdays & (1 << (day.weekday - 1)) != 0,
+                                    isRest: RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays),
+                                    today: today,
+                                    onTap: onTap
+                                )
                             } else {
                                 Color.clear
                             }
@@ -283,6 +292,7 @@ private struct DayCell: View {
     let day: Day
     let isDone: Bool
     let isScheduled: Bool
+    let isRest: Bool
     let today: Day
     let onTap: (Day) -> Void
 
@@ -294,10 +304,9 @@ private struct DayCell: View {
         } else {
             Button { onTap(day) } label: {
                 ZStack {
-                    CheckDot(diameter: Self.diameter, isDone: isDone)
-                        .opacity(isScheduled || isDone ? 1 : 0.35)
+                    CheckDot(diameter: Self.diameter, isDone: isDone, isRest: isRest)
                     number
-                        .foregroundStyle(isDone ? Graphite.background : Graphite.textPrimary)
+                        .foregroundStyle(isDone || isRest ? Graphite.background : Graphite.textPrimary)
                 }
                 .frame(width: Self.size, height: Self.size)
                 .overlay {

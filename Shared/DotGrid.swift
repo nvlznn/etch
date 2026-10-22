@@ -58,10 +58,10 @@ struct DotGrid: View {
     private func draw(in context: inout GraphicsContext, size: CGSize, increasedContrast: Bool) {
         let cell = size.width / CGFloat(grid.weeks)
         let dot = cell * Self.dotRatio
+        let firstCheckIn = done.min()
         var done = Path()
         var open = Path()
         var rest = Path()
-        var completedRest = Path()
 
         for column in 0..<grid.weeks {
             for row in 0..<7 {
@@ -71,11 +71,8 @@ struct DotGrid: View {
                 let frame = CGRect(x: center.x - dot / 2, y: center.y - dot / 2, width: dot, height: dot)
                 if self.done.contains(day) {
                     done.addEllipse(in: frame)
-                    if showsRestDays && weekdays & (1 << (day.weekday - 1)) == 0 {
-                        completedRest.addEllipse(in: frame)
-                    }
-                } else if showsRestDays && weekdays & (1 << (day.weekday - 1)) == 0 {
-                    rest.addEllipse(in: frame.insetBy(dx: dot * 0.24, dy: dot * 0.24))
+                } else if showsRestDays && RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays) {
+                    rest.addEllipse(in: frame)
                 } else {
                     open.addEllipse(in: frame)
                 }
@@ -84,8 +81,7 @@ struct DotGrid: View {
 
         context.fill(open, with: .color(Graphite.notDone))
         context.fill(done, with: .color(Graphite.done))
-        context.fill(rest, with: .color(Graphite.textSecondary))
-        context.stroke(completedRest, with: .color(Graphite.textSecondary), lineWidth: 1)
+        context.fill(rest, with: .color(Graphite.rest))
         if increasedContrast {
             context.stroke(open, with: .color(Graphite.textSecondary), lineWidth: 1)
         }

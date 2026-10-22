@@ -9,6 +9,10 @@ struct HabitSnapshot: Identifiable, Hashable {
     let name: String
     let done: Set<Day>
     let weekdays: Int
+
+    func showsRestDot(on day: Day) -> Bool {
+        RestDayDot.shows(on: day, firstCheckIn: done.min(), weekdays: weekdays)
+    }
 }
 
 struct HabitsEntry: TimelineEntry {

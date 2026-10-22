@@ -50,8 +50,8 @@ struct HabitLogCard: View {
             .padding(.horizontal, 2)
 
             switch span {
-            case .week: WeekRow(done: done, today: today)
-            case .halfYear: DotGrid(grid: grid, done: done, today: today, weekdays: habit.weekdays, showsRestDays: false)
+            case .week: WeekRow(done: done, today: today, weekdays: habit.weekdays)
+            case .halfYear: DotGrid(grid: grid, done: done, today: today, weekdays: habit.weekdays)
             }
         }
         .padding(12)
@@ -64,7 +64,7 @@ struct HabitLogCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(habit.name))
         .accessibilityValue(accessibilityValue(done: done))
-        .accessibilityHint(Text(verbatim: "\(String(localized: "Current Streak")): \(streak)"))
+        .accessibilityHint(Text(verbatim: "\(String(localized: "Streak")): \(streak)"))
     }
 
     private var grid: WeekGrid {
@@ -75,10 +75,10 @@ struct HabitLogCard: View {
         switch span {
         case .week:
             let count = done.count { $0 > today.adding(days: -7) && $0 <= today }
-            return Text("\(count) days completed in the last 7 days")
+            return Text("Completed \(count) of 7 days")
         case .halfYear:
             let count = done.count { $0 >= grid.start && $0 <= today }
-            return Text("\(count) days completed in the last 26 weeks")
+            return Text("Completed \(count) days in 26 weeks")
         }
     }
 }
@@ -87,14 +87,20 @@ struct HabitLogCard: View {
 private struct WeekRow: View {
     let done: Set<Day>
     let today: Day
+    let weekdays: Int
 
     var body: some View {
         let symbols = Calendar.current.veryShortStandaloneWeekdaySymbols
+        let firstCheckIn = done.min()
         HStack(spacing: 0) {
             ForEach(-6...0, id: \.self) { offset in
                 let day = today.adding(days: offset)
                 VStack(spacing: 6) {
-                    CheckDot(diameter: 32, isDone: done.contains(day))
+                    CheckDot(
+                        diameter: 32,
+                        isDone: done.contains(day),
+                        isRest: RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays)
+                    )
                     Text(symbols[day.weekday - 1])
                         .font(.caption2.weight(offset == 0 ? .bold : .medium))
                         .foregroundStyle(offset == 0 ? Graphite.textPrimary : Graphite.textSecondary)

@@ -20,6 +20,7 @@ import SwiftUI
 //                        as the background.
 // done           0.97    Done is plain near-white everywhere, ≈ 20:1 against `notDone`, so done and
 //                        not done differ by brightness alone.
+// rest           0.45    Gray for unscheduled days, distinct from both black and white.
 // divider        white @ 10%  Hairlines between items inside a card.
 // textPrimary    0.95    ≈ 15:1 on a card.
 // textSecondary  0.65    ≈ 7:1 on a card. Labels and captions; never dimmer.
@@ -33,6 +34,7 @@ enum Graphite {
     static let edgeBottom = Color(white: 1, opacity: 0.04)
     static let notDone = Color(white: 0)
     static let done = Color(white: 0.97)
+    static let rest = Color(white: 0.45)
     static let divider = Color(white: 1, opacity: 0.10)
     static let textPrimary = Color(white: 0.95)
     static let textSecondary = Color(white: 0.65)

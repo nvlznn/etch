@@ -178,9 +178,9 @@ extension View {
             ),
             presenting: habit.wrappedValue
         ) { target in
-            Button("Delete Habit", role: .destructive) { delete(target) }
+            Button("Delete", role: .destructive) { delete(target) }
         } message: { _ in
-            Text("Its check-ins will be deleted too. This can’t be undone.")
+            Text("Deletes all check-ins. Can’t undo.")
         }
     }
 }

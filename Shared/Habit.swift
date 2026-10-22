@@ -26,12 +26,16 @@ extension Habit {
         Set((checkIns ?? []).compactMap { Day(yyyyMMdd: $0.day) })
     }
 
+    /// The earliest recorded check-in, if any.
+    var firstCheckInDay: Day? {
+        (checkIns ?? []).lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
+    }
+
     /// How far back this habit's history goes: the day it was created, or the earliest check-in
     /// if one was backfilled before that.
     var firstDay: Day {
         let created = Day(createdAt)
-        let earliest = (checkIns ?? []).lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
-        return min(created, earliest ?? created)
+        return min(created, firstCheckInDay ?? created)
     }
 
     func isDone(on day: Day) -> Bool {

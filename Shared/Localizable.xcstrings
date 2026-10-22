@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@, done on %@" : {
+    "%@, done %@" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -21,7 +21,7 @@
         }
       }
     },
-    "%@, not done on %@" : {
+    "%@, not done %@" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -37,62 +37,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@，今天未完成"
-          }
-        }
-      }
-    },
-    "%lld days completed in the last 7 days" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day completed in the last 7 days"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days completed in the last 7 days"
-                }
-              }
-            }
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最近 7 天完成 %lld 天"
-          }
-        }
-      }
-    },
-    "%lld days completed in the last 26 weeks" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day completed in the last 26 weeks"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days completed in the last 26 weeks"
-                }
-              }
-            }
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最近 26 週完成 %lld 天"
           }
         }
       }
@@ -138,6 +82,16 @@
         }
       }
     },
+    "Best" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最長"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "zh-Hant" : {
@@ -158,12 +112,12 @@
         }
       }
     },
-    "Check in from the Home Screen and see your recent days." : {
+    "Check in and view recent days." : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在主畫面打卡，並查看最近的紀錄。"
+            "value" : "打卡並查看近期紀錄。"
           }
         }
       }
@@ -220,12 +174,58 @@
         }
       }
     },
-    "Current Streak" : {
+    "Completed %lld days in 26 weeks" : {
       "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Completed %lld days in 26 weeks"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Completed %lld days in 26 weeks"
+                }
+              }
+            }
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "目前連續"
+            "value" : "26 週完成 %lld 天"
+          }
+        }
+      }
+    },
+    "Completed %lld of 7 days" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Completed %lld of 7 days"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Completed %lld of 7 days"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天完成 %lld 天"
           }
         }
       }
@@ -276,17 +276,28 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "要刪除「%@」嗎？"
+            "value" : "刪除「%@」？"
           }
         }
       }
     },
     "Delete Habit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除習慣"
+          }
+        }
+      }
+    },
+    "Deletes all check-ins. Can’t undo." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打卡紀錄也會刪除，無法復原。"
           }
         }
       }
@@ -388,32 +399,12 @@
         }
       }
     },
-    "Its check-ins will be deleted too. This can’t be undone." : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有打卡紀錄也會一併刪除，且無法復原。"
-          }
-        }
-      }
-    },
     "Log" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "記錄"
-          }
-        }
-      }
-    },
-    "Longest Streak" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最長連續"
           }
         }
       }
@@ -468,22 +459,22 @@
         }
       }
     },
-    "No habits yet" : {
+    "No habits" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "還沒有習慣"
+            "value" : "沒有習慣"
           }
         }
       }
     },
-    "No note yet" : {
+    "No note" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "尚無備註"
+            "value" : "無備註"
           }
         }
       }
@@ -586,6 +577,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "小圓點代表休息日"
+          }
+        }
+      }
+    },
+    "Streak" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連續"
           }
         }
       }
