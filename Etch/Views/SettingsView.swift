@@ -16,7 +16,14 @@ struct SettingsView: View {
 
                 Section {
                     Link(destination: URL(string: "https://github.com/nvlznn/etch")!) {
-                        Label("GitHub", systemImage: "arrow.up.right.square")
+                        Label {
+                            Text("GitHub")
+                        } icon: {
+                            Image("GitHub")
+                                .renderingMode(.template)
+                                .resizable()
+                                .frame(width: 17, height: 17)
+                        }
                     }
                 }
             }
