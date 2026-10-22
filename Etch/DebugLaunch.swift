@@ -8,16 +8,18 @@ import SwiftData
 ///     -EtchSeed <n>       add n habits with up to a year of history (only into an empty store)
 ///     -EtchScreenshots    add the nine App Store screenshot habits, named in the app's language
 ///     -EtchCatalog        show the design-system catalog instead of the app
-///     -EtchTab log        start on the Log tab
+///     -EtchTab <tab>      start on the Log or Settings tab (`log`, `settings`)
 ///     -EtchOpenFirst      on the Log tab, open the first habit's detail page
+///     -EtchEditScheduled  on Check-In, open the editor for the first habit with a schedule
 ///     -EtchRenderIcon     write AppIcon.png to the app's Documents folder
 enum DebugLaunch {
     private static let arguments = ProcessInfo.processInfo.arguments
 
     static var inMemory: Bool { arguments.contains("-EtchInMemory") }
     static var showsCatalog: Bool { arguments.contains("-EtchCatalog") }
-    static var startsOnLog: Bool { value(after: "-EtchTab") == "log" }
+    static var startTab: String? { value(after: "-EtchTab") }
     static var opensFirstHabit: Bool { arguments.contains("-EtchOpenFirst") }
+    static var editsScheduledHabit: Bool { arguments.contains("-EtchEditScheduled") }
     static var rendersIcon: Bool { arguments.contains("-EtchRenderIcon") }
 
     private static func value(after flag: String) -> String? {
@@ -87,7 +89,7 @@ extension DebugLaunch {
         Showcase(name: ("Run", "跑步"), note: ("5 km along the river.", "河濱 5 公里。"),
                  rate: 0.85, weekdays: [2, 5, 7], week: "0101010"),
         Showcase(name: ("Drink water", "喝水"), note: ("2 liters.", "2000 毫升。"), rate: 0.9, week: "1111011"),
-        Showcase(name: ("Stretch", "伸展"), rate: 0.72, week: "1110110"),
+        Showcase(name: ("Stretch", "伸展"), rate: 0.72, weekdays: [2, 4, 6], week: "1110110"),
         Showcase(name: ("Journal", "寫日記"), rate: 0.76, week: "1011101"),
         Showcase(name: ("Practice piano", "練鋼琴"), note: ("Scales first, then the Chopin nocturne.", "先練音階，再練蕭邦夜曲。"),
                  rate: 0.66, week: "0110100"),
@@ -109,6 +111,9 @@ extension DebugLaunch {
                 createdAt: firstDay.date().addingTimeInterval(9 * 3600)
             )
             habit.notes = chinese ? item.note.zh : item.note.en
+            if let weekdays = item.weekdays {
+                habit.weekdays = weekdays.reduce(0) { $0 | 1 << ($1 - 1) }
+            }
             context.insert(habit)
 
             // Two-state chain: stay done with `keep`; start again at the rate that makes `rate` the long-run share.

@@ -72,6 +72,13 @@ struct CheckInView: View {
             }
             .sheet(item: $editing) { HabitEditorSheet(target: $0) }
             .confirmingDeletion(of: $deleting) { modelContext.delete($0) }
+            #if DEBUG
+            .task {
+                if DebugLaunch.editsScheduledHabit, let habit = habits.first(where: { $0.weekdays != 127 }) {
+                    editing = .edit(habit)
+                }
+            }
+            #endif
         }
     }
 

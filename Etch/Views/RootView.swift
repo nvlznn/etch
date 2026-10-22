@@ -67,7 +67,11 @@ struct RootView: View {
 
     private static var initialSection: Section {
         #if DEBUG
-        DebugLaunch.startsOnLog ? .log : .checkIn
+        switch DebugLaunch.startTab {
+        case "log": .log
+        case "settings": .settings
+        default: .checkIn
+        }
         #else
         .checkIn
         #endif
