@@ -27,7 +27,7 @@ struct ToggleHabitIntent: AppIntent {
         let context = ModelContext(try Store.makeContainer())
         var match = FetchDescriptor<Habit>(predicate: #Predicate { $0.persistentModelID == id })
         match.fetchLimit = 1
-        guard let habit = try context.fetch(match).first else { return .result() }
+        guard let habit = try context.fetch(match).first, !habit.isArchived else { return .result() }
 
         habit.toggle(on: target)
         try context.save()

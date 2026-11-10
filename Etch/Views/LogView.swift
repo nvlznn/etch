@@ -4,7 +4,7 @@ import SwiftUI
 /// Every habit's last 7 days or 26 weeks. Tap a card for its full history, swipe it left to check in
 /// today, long-press and drag to reorder.
 struct LogView: View {
-    @Query(sort: [SortDescriptor(\Habit.sortOrder), SortDescriptor(\Habit.createdAt)])
+    @Query(Habit.tracked)
     private var habits: [Habit]
 
     @State private var path: [Habit] = []

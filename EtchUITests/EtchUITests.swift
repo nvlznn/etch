@@ -117,20 +117,52 @@ final class EtchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Read 20 pages, done today"].exists)
     }
 
-    func testDeleteFromCheckInAsksFirst() {
+    func testArchiveAndUnarchive() {
         launch()
-        app.buttons["Add Habit"].firstMatch.tap()
-        app.textFields["Name"].typeText("Stretch\n")
-        let tile = app.buttons["Stretch, not done today"]
-        XCTAssertTrue(tile.waitForExistence(timeout: 3))
+        for name in ["Stretch", "Walk"] {
+            app.buttons["Add Habit"].firstMatch.tap()
+            app.textFields["Name"].typeText("\(name)\n")
+            XCTAssertTrue(app.buttons["\(name), not done today"].waitForExistence(timeout: 3))
+        }
 
-        tile.press(forDuration: 1.2)
-        app.buttons["Delete"].tap()
-        let confirm = app.alerts.buttons["Delete"]
-        XCTAssertTrue(confirm.waitForExistence(timeout: 3))
-        XCTAssertTrue(tile.exists, "Nothing is deleted until confirmed")
-        confirm.tap()
-        XCTAssertTrue(app.staticTexts["No habits"].waitForExistence(timeout: 3))
+        // Archive from the detail page: gone from the Log and Check-In.
+        app.tabBars.buttons["Log"].tap()
+        let stretchCard = app.buttons["Stretch"]
+        XCTAssertTrue(stretchCard.waitForExistence(timeout: 3))
+        stretchCard.tap()
+        app.navigationBars.buttons["More"].tap()
+        app.buttons["Archive"].tap()
+        XCTAssertTrue(app.buttons["Walk"].waitForExistence(timeout: 3))
+        XCTAssertTrue(waitUntil(!stretchCard.exists))
+        app.tabBars.buttons["Check-In"].tap()
+        XCTAssertTrue(app.buttons["Walk, not done today"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Stretch, not done today"].exists)
+
+        // Settings › Archived: the history is read-only and has no current streak.
+        app.tabBars.buttons["Settings"].tap()
+        app.staticTexts["Archived"].tap()
+        app.staticTexts["Stretch"].tap()
+        XCTAssertTrue(app.otherElements["Total"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.otherElements["Streak"].exists)
+        XCTAssertFalse(app.buttons[dayLabel(0)].isEnabled, "An archived habit's days can't be tapped")
+        snapshot("archived habit")
+        app.navigationBars.buttons["More"].tap()
+        XCTAssertTrue(app.buttons["Unarchive"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Edit"].exists)
+        app.buttons["Unarchive"].tap()
+        XCTAssertTrue(app.staticTexts["No archived habits"].waitForExistence(timeout: 3))
+
+        // Back on Check-In, after the habit that stayed.
+        app.tabBars.buttons["Check-In"].tap()
+        let stretchTile = app.buttons["Stretch, not done today"]
+        XCTAssertTrue(stretchTile.waitForExistence(timeout: 3))
+        XCTAssertLessThan(app.buttons["Walk, not done today"].frame.minX, stretchTile.frame.minX)
+
+        // Delete and Archive live on the detail page only.
+        stretchTile.press(forDuration: 1.2)
+        XCTAssertTrue(app.buttons["Edit"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Delete"].exists)
+        XCTAssertFalse(app.buttons["Archive"].exists)
     }
 
     func testCheckInOnAnotherDay() {

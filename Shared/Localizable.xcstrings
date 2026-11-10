@@ -82,6 +82,36 @@
         }
       }
     },
+    "Archive" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封存"
+          }
+        }
+      }
+    },
+    "Archived" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已封存"
+          }
+        }
+      }
+    },
+    "Archived %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封存於 %@"
+          }
+        }
+      }
+    },
     "Best" : {
       "localizations" : {
         "zh-Hant" : {
@@ -459,6 +489,16 @@
         }
       }
     },
+    "No archived habits" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有已封存的習慣"
+          }
+        }
+      }
+    },
     "No habits" : {
       "localizations" : {
         "zh-Hant" : {
@@ -619,6 +659,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "總次數"
+          }
+        }
+      }
+    },
+    "Unarchive" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消封存"
           }
         }
       }

@@ -6,7 +6,6 @@ struct HabitTile: View {
     let habit: Habit
     let day: Day
     let onEdit: () -> Void
-    let onDelete: () -> Void
 
     @Environment(\.today) private var today
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -47,7 +46,6 @@ struct HabitTile: View {
         .contextMenu {
             if !habit.notes.isEmpty { Button("Note", systemImage: "text.alignleft") { showsNote = true } }
             Button("Edit", systemImage: "pencil", action: onEdit)
-            DeleteHabitButton(action: onDelete)
         }
         .sheet(isPresented: $showsNote) {
             NavigationStack {

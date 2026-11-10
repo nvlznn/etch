@@ -42,8 +42,7 @@ struct HabitsProvider: TimelineProvider {
     static func load() -> HabitsEntry {
         let today = Store.today
         let habits: [Habit] = (try? Store.makeContainer()).flatMap { container in
-            let all = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.sortOrder), SortDescriptor(\.createdAt)])
-            return try? ModelContext(container).fetch(all)
+            try? ModelContext(container).fetch(Habit.tracked)
         } ?? []
         let snapshots = habits.compactMap { habit in
             HabitID.encode(habit.persistentModelID).map {

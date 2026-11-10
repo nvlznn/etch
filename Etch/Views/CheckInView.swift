@@ -5,14 +5,12 @@ import UniformTypeIdentifiers
 /// One day — today unless another is picked above — with every habit as a tile with a dot to tap.
 /// Long-press a tile for its menu, or long-press and drag it to reorder.
 struct CheckInView: View {
-    @Query(sort: [SortDescriptor(\Habit.sortOrder), SortDescriptor(\Habit.createdAt)])
+    @Query(Habit.tracked)
     private var habits: [Habit]
 
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.today) private var today
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var editing: HabitEditorTarget?
-    @State private var deleting: Habit?
     /// How many days before today the page is showing. Kept as an offset so "Today" stays
     /// selected when the date rolls over at midnight.
     @State private var daysAgo = 0
@@ -39,8 +37,7 @@ struct CheckInView: View {
                             HabitTile(
                                 habit: habit,
                                 day: today.adding(days: -daysAgo),
-                                onEdit: { editing = .edit(habit) },
-                                onDelete: { deleting = habit }
+                                onEdit: { editing = .edit(habit) }
                             )
                             .onDrag {
                                 dragging = habit
@@ -71,7 +68,6 @@ struct CheckInView: View {
                 }
             }
             .sheet(item: $editing) { HabitEditorSheet(target: $0) }
-            .confirmingDeletion(of: $deleting) { modelContext.delete($0) }
             #if DEBUG
             .task {
                 if DebugLaunch.editsScheduledHabit, let habit = habits.first(where: { $0.weekdays != 127 }) {

@@ -4,9 +4,10 @@ A minimalist habit tracker for iPhone (iOS 26+). Black, white and gray only: fla
 faint sheen on their edges, floating on pure black. Tap a habit's circle to fill it with white, for
 today or any earlier day; the Log shows each habit's last 26 weeks as a dot grid, and each habit's
 page has a month calendar for editing its history. Set the weekdays when each habit is due; rest
-days do not break a streak. Home Screen widgets in small, medium and large let you check in
-without opening the app. Habits and check-ins sync through the user's private iCloud database.
-The website source is in [`website/`](website/).
+days do not break a streak. Archive a habit from its page to take it off Check-In, the Log and
+the widgets and keep its history; archived habits are in Settings. Home Screen widgets in small,
+medium and large let you check in without opening the app. Habits and check-ins sync through the
+user's private iCloud database. The website source is in [`website/`](website/).
 
 English is the development language; Traditional Chinese (zh-Hant) is a full translation in
 `Shared/Localizable.xcstrings`, shared by the app and the widgets.

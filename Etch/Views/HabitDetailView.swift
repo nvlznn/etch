@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 /// One habit in full: its note, streaks, and its whole history as a month calendar you can
-/// backfill.
+/// backfill. An archived habit's page is read-only.
 struct HabitDetailView: View {
     let habit: Habit
 
@@ -14,6 +14,14 @@ struct HabitDetailView: View {
     @State private var deleting: Habit?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var backfills = 0
+    /// Whether the habit was archived when the page opened. Kept while the page slides away after
+    /// archiving or unarchiving, so it doesn't change on the way out.
+    @State private var isArchived: Bool
+
+    init(habit: Habit) {
+        self.habit = habit
+        _isArchived = State(initialValue: habit.isArchived)
+    }
 
     var body: some View {
         // Briefly true while the page slides away after the habit was deleted.
@@ -27,6 +35,7 @@ struct HabitDetailView: View {
     private var content: some View {
         let done = habit.doneDays
         let stats = Stats(days: done, today: today, weekdays: habit.weekdays)
+        let onTap: ((Day) -> Void)? = isArchived ? nil : { toggle($0) }
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -34,7 +43,7 @@ struct HabitDetailView: View {
                     notes
                 }
                 statistics(stats)
-                MonthCalendar(done: done, today: today, firstDay: habit.firstDay, weekdays: habit.weekdays, onTap: toggle)
+                MonthCalendar(done: done, today: today, firstDay: habit.firstDay, weekdays: habit.weekdays, onTap: onTap)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -45,7 +54,18 @@ struct HabitDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu("More", systemImage: "ellipsis") {
-                    Button("Edit", systemImage: "pencil") { editing = true }
+                    if isArchived {
+                        Button("Unarchive", systemImage: "arrow.uturn.backward") {
+                            dismiss()
+                            habit.unarchive()
+                        }
+                    } else {
+                        Button("Edit", systemImage: "pencil") { editing = true }
+                        Button("Archive", systemImage: "archivebox") {
+                            dismiss()
+                            habit.archive()
+                        }
+                    }
                     DeleteHabitButton { deleting = habit }
                 }
             }
@@ -73,7 +93,7 @@ struct HabitDetailView: View {
         backfills += 1
     }
 
-    /// The habit's note, as typed. Tap to edit it.
+    /// The habit's note, as typed. Tap to edit it, unless the habit is archived.
     private var notes: some View {
         Button { editing = true } label: {
             Text(habit.notes)
@@ -84,18 +104,22 @@ struct HabitDetailView: View {
                 .padding(16)
         }
         .buttonStyle(.card)
+        .disabled(isArchived)
         .accessibilityLabel(Text("Note"))
         .accessibilityValue(Text(habit.notes))
         .accessibilityHint(Text("Edit"))
     }
 
-    /// Three numbers on one card, separated by hairlines; stacked when the text is very large.
+    /// Three numbers on one card, separated by hairlines; stacked when the text is very large. An
+    /// archived habit has no current streak, so it shows only the other two.
     private func statistics(_ stats: Stats) -> some View {
         let stacked = dynamicTypeSize.isAccessibilitySize
         let layout = stacked ? AnyLayout(VStackLayout(spacing: 16)) : AnyLayout(HStackLayout(spacing: 0))
         return layout {
-            StatItem(value: stats.currentStreak, title: "Streak")
-            if !stacked { StatDivider() }
+            if !isArchived {
+                StatItem(value: stats.currentStreak, title: "Streak")
+                if !stacked { StatDivider() }
+            }
             StatItem(value: stats.longestStreak, title: "Best")
             if !stacked { StatDivider() }
             StatItem(value: stats.total, title: "Total")
@@ -150,7 +174,8 @@ private struct MonthCalendar: View {
     /// The start of the habit's history; the calendar reaches back at least this far.
     let firstDay: Day
     let weekdays: Int
-    let onTap: (Day) -> Void
+    /// `nil` for a read-only calendar.
+    let onTap: ((Day) -> Void)?
 
     /// The month on screen. `nil` until the user changes month, meaning this month.
     @State private var shown: Month?
@@ -249,7 +274,7 @@ private struct MonthPage: View {
     let weekdays: Int
     let firstCheckIn: Day?
     let firstWeekday: Int
-    let onTap: (Day) -> Void
+    let onTap: ((Day) -> Void)?
 
     var body: some View {
         // The day in the top-left slot; slots outside the month stay empty.
@@ -294,7 +319,7 @@ private struct DayCell: View {
     let isScheduled: Bool
     let isRest: Bool
     let today: Day
-    let onTap: (Day) -> Void
+    let onTap: ((Day) -> Void)?
 
     var body: some View {
         if day > today {
@@ -302,7 +327,7 @@ private struct DayCell: View {
                 .foregroundStyle(Graphite.textSecondary.opacity(0.4))
                 .accessibilityHidden(true)
         } else {
-            Button { onTap(day) } label: {
+            Button { onTap?(day) } label: {
                 ZStack {
                     CheckDot(diameter: Self.diameter, isDone: isDone, isRest: isRest)
                     number
@@ -316,6 +341,7 @@ private struct DayCell: View {
                 }
             }
             .buttonStyle(CheckDotButtonStyle())
+            .disabled(onTap == nil)
             .accessibilityLabel(Text(day.date(), format: .dateTime.weekday(.wide).month(.wide).day().year()))
             .accessibilityValue(isDone ? Text("Completed") : Text("Not completed"))
             .accessibilityHint(isScheduled ? Text("Scheduled day") : Text("Rest day"))

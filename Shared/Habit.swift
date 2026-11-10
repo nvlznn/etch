@@ -11,6 +11,9 @@ final class Habit {
     var weekdays: Int = 127
     /// Anything the user wants to remember about the habit: why, how, when. Empty when unused.
     var notes: String = ""
+    /// When the habit was archived: off Check-In, the Log and the widgets, its history kept and
+    /// listed in Settings. `nil` while it's tracked.
+    var archivedAt: Date?
     @Relationship(deleteRule: .cascade, inverse: \CheckIn.habit) var checkIns: [CheckIn]?
 
     init(name: String, sortOrder: Int, createdAt: Date = .now) {
@@ -60,6 +63,20 @@ extension Habit {
         }
     }
 
+    var isArchived: Bool { archivedAt != nil }
+
+    func archive() {
+        archivedAt = .now
+    }
+
+    /// Tracks an archived habit again, after every other habit.
+    func unarchive() {
+        if let modelContext {
+            sortOrder = Habit.nextSortOrder(in: modelContext)
+        }
+        archivedAt = nil
+    }
+
     func isScheduled(on day: Day) -> Bool {
         weekdays & (1 << (day.weekday - 1)) != 0
     }
@@ -73,13 +90,29 @@ extension Habit {
     }
 
     /// Moves habits the way `Array.move(fromOffsets:toOffset:)` would, and keeps the new order in
-    /// `sortOrder`. `habits` must be every habit, in their current order.
+    /// `sortOrder`. `habits` must be every tracked habit, in their current order.
     static func reorder(_ habits: [Habit], fromOffsets source: IndexSet, toOffset destination: Int) {
         var reordered = habits
         reordered.move(fromOffsets: source, toOffset: destination)
         for (index, habit) in reordered.enumerated() where habit.sortOrder != index {
             habit.sortOrder = index
         }
+    }
+
+    /// What Check-In, the Log and the widgets show: every habit not archived, in the user's order.
+    static var tracked: FetchDescriptor<Habit> {
+        FetchDescriptor(
+            predicate: #Predicate { $0.archivedAt == nil },
+            sortBy: [SortDescriptor(\.sortOrder), SortDescriptor(\.createdAt)]
+        )
+    }
+
+    /// Every archived habit, the latest first.
+    static var archived: FetchDescriptor<Habit> {
+        FetchDescriptor(
+            predicate: #Predicate { $0.archivedAt != nil },
+            sortBy: [SortDescriptor(\.archivedAt, order: .reverse)]
+        )
     }
 
     /// The `sortOrder` for a habit added after every existing one.

@@ -1,7 +1,10 @@
+import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("dayEndHour", store: UserDefaults(suiteName: Store.appGroup)) private var dayEndHour = 0
+    @Query(Habit.archived)
+    private var archived: [Habit]
 
     var body: some View {
         NavigationStack {
@@ -11,6 +14,14 @@ struct SettingsView: View {
                         ForEach(0...5, id: \.self) { hour in
                             Text(String(format: "%02d:00", hour)).tag(hour)
                         }
+                    }
+                }
+
+                Section {
+                    NavigationLink {
+                        ArchivedHabitsView()
+                    } label: {
+                        LabeledContent("Archived", value: archived.count, format: .number)
                     }
                 }
 
@@ -31,5 +42,38 @@ struct SettingsView: View {
             .background { GraphiteBackground() }
             .navigationTitle("Settings")
         }
+    }
+}
+
+/// Every archived habit, the latest first. Tap one for its history, to unarchive or delete it.
+private struct ArchivedHabitsView: View {
+    @Query(Habit.archived)
+    private var habits: [Habit]
+
+    var body: some View {
+        Form {
+            if habits.isEmpty {
+                Text("No archived habits")
+                    .foregroundStyle(Graphite.textSecondary)
+            } else {
+                ForEach(habits) { habit in
+                    NavigationLink {
+                        HabitDetailView(habit: habit)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(habit.name)
+                            if let archivedAt = habit.archivedAt {
+                                Text("Archived \(archivedAt, format: .dateTime.year().month().day())")
+                                    .font(.footnote)
+                                    .foregroundStyle(Graphite.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background { GraphiteBackground() }
+        .navigationTitle("Archived")
     }
 }
