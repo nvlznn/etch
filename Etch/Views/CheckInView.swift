@@ -19,6 +19,10 @@ struct CheckInView: View {
     @State private var displayOrder: [PersistentIdentifier] = []
     /// Counts the places a dragged tile has moved through, for a tick of haptic feedback each time.
     @State private var moves = 0
+    /// How big one tile is, so a drag can tell whether it's held over a tile's middle.
+    @State private var tileSize: CGSize = .zero
+    /// When the last tile moved, so the tiles can settle before the next move.
+    @State private var lastMove = Date.distantPast
 
     var body: some View {
         NavigationStack {
@@ -39,14 +43,16 @@ struct CheckInView: View {
                                 day: today.adding(days: -daysAgo),
                                 onEdit: { editing = .edit(habit) }
                             )
+                            .onGeometryChange(for: CGSize.self, of: \.size) { tileSize = $0 }
                             .onDrag {
                                 dragging = habit
                                 displayOrder = habits.map(\.persistentModelID)
+                                lastMove = .distantPast
                                 return NSItemProvider(object: habit.name as NSString)
                             }
                             .onDrop(of: [.text], delegate: TileDropDelegate(
-                                target: habit, habits: habits, order: $displayOrder,
-                                dragging: $dragging, moves: $moves
+                                target: habit, habits: habits, tileSize: tileSize, order: $displayOrder,
+                                dragging: $dragging, moves: $moves, lastMove: $lastMove
                             ))
                         }
                     }
@@ -105,16 +111,44 @@ struct CheckInView: View {
     }
 }
 
-/// Reorders live while a tile is dragged: entering another tile's place moves the dragged one there.
+/// When a dragged tile held at a point inside another tile should take that tile's place.
+nonisolated enum TileReorder {
+    /// Only the middle of a tile counts. A move shuffles every tile after it, so a tile near the
+    /// edge ends up under the finger and moves the dragged one straight back, again and again.
+    static func shouldMove(at location: CGPoint, in size: CGSize) -> Bool {
+        guard size.width > 0, size.height > 0 else { return true }
+        let middle = CGRect(origin: .zero, size: size).insetBy(dx: size.width * 0.2, dy: size.height * 0.2)
+        return middle.contains(location)
+    }
+
+    /// How long tiles take to settle after a move. Until then they are still sliding under the
+    /// finger, and moving again for the tile that happens to be there would undo the move.
+    static let settleTime: TimeInterval = 0.35
+
+    static func hasSettled(since lastMove: Date, at now: Date = .now) -> Bool {
+        now.timeIntervalSince(lastMove) >= settleTime
+    }
+}
+
+/// Reorders live while a tile is dragged: holding it over the middle of another tile moves it there.
 private struct TileDropDelegate: DropDelegate {
     let target: Habit
     let habits: [Habit]
+    let tileSize: CGSize
     @Binding var order: [PersistentIdentifier]
     @Binding var dragging: Habit?
     @Binding var moves: Int
+    @Binding var lastMove: Date
 
-    func dropEntered(info: DropInfo) {
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        moveDragged(at: info.location)
+        return DropProposal(operation: .move)
+    }
+
+    private func moveDragged(at location: CGPoint) {
         guard let dragging, dragging != target,
+              TileReorder.hasSettled(since: lastMove),
+              TileReorder.shouldMove(at: location, in: tileSize),
               let from = order.firstIndex(of: dragging.persistentModelID),
               let to = order.firstIndex(of: target.persistentModelID)
         else { return }
@@ -122,10 +156,7 @@ private struct TileDropDelegate: DropDelegate {
             order.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
         }
         moves += 1
-    }
-
-    func dropUpdated(info: DropInfo) -> DropProposal? {
-        DropProposal(operation: .move)
+        lastMove = .now
     }
 
     func performDrop(info: DropInfo) -> Bool {
