@@ -6,10 +6,35 @@ struct SettingsView: View {
     @AppStorage(StartPage.key) private var startPage = StartPage.checkIn
     @Query(Habit.archived)
     private var archived: [Habit]
+    @Environment(Purchases.self) private var purchases
+    @State private var paywall: PaywallReason?
 
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    if purchases.isPro {
+                        LabeledContent("Plan") { Text("Etch Pro") }
+                    } else {
+                        Button { paywall = .settings } label: {
+                            LabeledContent("Plan") {
+                                HStack(spacing: 6) {
+                                    Text("Etch Free")
+                                    Image(systemName: "chevron.right")
+                                        .font(.footnote.weight(.semibold))
+                                        .accessibilityHidden(true)
+                                }
+                                .foregroundStyle(Graphite.textSecondary)
+                            }
+                        }
+                        .foregroundStyle(Graphite.textPrimary)
+
+                        Button("Restore Purchases") { Task { await purchases.restore() } }
+                            .foregroundStyle(Graphite.textPrimary)
+                            .disabled(purchases.isBusy)
+                    }
+                }
+
                 Section {
                     Picker("Day ends", selection: $dayEndHour) {
                         ForEach(0...5, id: \.self) { hour in
@@ -48,6 +73,7 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background { GraphiteBackground() }
             .navigationTitle("Settings")
+            .sheet(item: $paywall) { PaywallSheet(reason: $0) }
         }
     }
 }

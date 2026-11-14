@@ -10,7 +10,9 @@ struct HabitDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.today) private var today
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(Purchases.self) private var purchases
     @State private var editing = false
+    @State private var paywall: PaywallReason?
     @State private var deleting: Habit?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var backfills = 0
@@ -58,8 +60,13 @@ struct HabitDetailView: View {
                 Menu("More", systemImage: "ellipsis") {
                     if isArchived {
                         Button("Unarchive", systemImage: "arrow.uturn.backward") {
-                            dismiss()
-                            habit.unarchive()
+                            // Etch Free can't bring a habit back.
+                            if Plan.canUnarchive(isPro: purchases.isPro) {
+                                dismiss()
+                                habit.unarchive()
+                            } else {
+                                paywall = .unarchive
+                            }
                         }
                     } else {
                         Button("Edit", systemImage: "pencil") { editing = true }
@@ -73,6 +80,7 @@ struct HabitDetailView: View {
             }
         }
         .sheet(isPresented: $editing) { HabitEditorSheet(target: .edit(habit)) }
+        .sheet(item: $paywall) { PaywallSheet(reason: $0) }
         .confirmingDeletion(of: $deleting) { habit in
             dismiss()
             modelContext.delete(habit)
@@ -391,6 +399,7 @@ private struct DayCell: View {
         HabitDetailView(habit: habit)
     }
     .modelContainer(habit.modelContext!.container)
+    .environment(Purchases())
     .preferredColorScheme(.dark)
     .tint(.white)
 }

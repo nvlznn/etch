@@ -10,7 +10,9 @@ struct CheckInView: View {
 
     @Environment(\.today) private var today
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(Purchases.self) private var purchases
     @State private var editing: HabitEditorTarget?
+    @State private var paywall: PaywallReason?
     /// How many days before today the page is showing. Kept as an offset so "Today" stays
     /// selected when the date rolls over at midnight.
     @State private var daysAgo = 0
@@ -28,7 +30,7 @@ struct CheckInView: View {
         NavigationStack {
             ScrollView {
                 if habits.isEmpty {
-                    EmptyHabitsCard { editing = .new }
+                    EmptyHabitsCard(onAdd: addHabit)
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
                 } else {
@@ -70,10 +72,11 @@ struct CheckInView: View {
             .navigationTitle("Check-In")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Add Habit", systemImage: "plus") { editing = .new }
+                    Button("Add Habit", systemImage: "plus", action: addHabit)
                 }
             }
             .sheet(item: $editing) { HabitEditorSheet(target: $0) }
+            .sheet(item: $paywall) { PaywallSheet(reason: $0) }
             #if DEBUG
             .task {
                 if DebugLaunch.editsScheduledHabit, let habit = habits.first(where: { $0.weekdays != 127 }) {
@@ -81,6 +84,15 @@ struct CheckInView: View {
                 }
             }
             #endif
+        }
+    }
+
+    /// Opens the editor for a new habit, or the paywall when Etch Free is full.
+    private func addHabit() {
+        if Plan.canAddHabit(active: habits.count, isPro: purchases.isPro) {
+            editing = .new
+        } else {
+            paywall = .addHabit
         }
     }
 
@@ -245,6 +257,7 @@ struct EmptyHabitsCard: View {
 #Preview("Habits") {
     CheckInView()
         .modelContainer(PreviewStore.withHabits)
+        .environment(Purchases())
         .preferredColorScheme(.dark)
         .tint(.white)
 }
@@ -252,6 +265,7 @@ struct EmptyHabitsCard: View {
 #Preview("Empty") {
     CheckInView()
         .modelContainer(PreviewStore.empty)
+        .environment(Purchases())
         .preferredColorScheme(.dark)
         .tint(.white)
 }

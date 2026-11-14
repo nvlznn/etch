@@ -7,11 +7,13 @@ final class EtchUITests: XCTestCase {
     private var app: XCUIApplication!
 
     /// Launches a fresh app on an empty in-memory store, plus any extra launch arguments. The Start
-    /// page is pinned to Check-In so a saved setting can't change where these tests begin.
+    /// page is pinned to Check-In so a saved setting can't change where these tests begin, and the
+    /// plan to Etch Pro so no test runs into the free limit unless it asks for `-EtchPlan free`.
     private func launch(_ arguments: String...) {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-EtchInMemory", "-startPage", "checkIn"] + arguments
+        let plan = arguments.contains("-EtchPlan") ? [] : ["-EtchPlan", "pro"]
+        app.launchArguments = ["-EtchInMemory", "-startPage", "checkIn"] + plan + arguments
         app.launch()
     }
 
@@ -164,6 +166,59 @@ final class EtchUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Edit"].waitForExistence(timeout: 3))
         XCTAssertFalse(app.buttons["Delete"].exists)
         XCTAssertFalse(app.buttons["Archive"].exists)
+    }
+
+    /// Etch Free holds three habits that aren't archived; adding or unarchiving past that opens the
+    /// paywall, and the habits already there are never locked.
+    func testFreePlanStopsAtThreeHabits() {
+        launch("-EtchPlan", "free", "-EtchSeed", "3")
+
+        // Full: the plus button opens the paywall, not the editor.
+        app.navigationBars.buttons["Add Habit"].tap()
+        XCTAssertTrue(app.buttons["Restore Purchases"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.textFields["Name"].exists)
+        snapshot("paywall add habit")
+        app.buttons["Close"].tap()
+        XCTAssertTrue(waitUntil(!app.buttons["Restore Purchases"].exists))
+
+        // Archiving frees a place.
+        app.tabBars.buttons["Log"].tap()
+        let card = app.buttons["Read 20 pages"]
+        XCTAssertTrue(card.waitForExistence(timeout: 3))
+        card.tap()
+        app.navigationBars.buttons["More"].tap()
+        app.buttons["Archive"].tap()
+        XCTAssertTrue(waitUntil(!card.exists))
+        app.tabBars.buttons["Check-In"].tap()
+        app.navigationBars.buttons["Add Habit"].tap()
+        XCTAssertTrue(app.textFields["Name"].waitForExistence(timeout: 3))
+        app.navigationBars.buttons["Cancel"].tap()
+
+        // But an archived habit can't come back.
+        app.tabBars.buttons["Settings"].tap()
+        XCTAssertTrue(element(labelContaining: "Etch Free").waitForExistence(timeout: 3))
+        app.staticTexts["Archived"].tap()
+        app.staticTexts["Read 20 pages"].tap()
+        app.navigationBars.buttons["More"].tap()
+        app.buttons["Unarchive"].tap()
+        XCTAssertTrue(app.buttons["Restore Purchases"].waitForExistence(timeout: 3))
+        snapshot("paywall unarchive")
+    }
+
+    func testProHasNoHabitLimit() {
+        launch("-EtchPlan", "pro", "-EtchSeed", "3")
+        app.navigationBars.buttons["Add Habit"].tap()
+        XCTAssertTrue(app.textFields["Name"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Restore Purchases"].exists)
+        app.navigationBars.buttons["Cancel"].tap()
+
+        app.tabBars.buttons["Settings"].tap()
+        XCTAssertTrue(element(labelContaining: "Etch Pro").waitForExistence(timeout: 3))
+    }
+
+    /// The Plan row's name and value are one element for VoiceOver, e.g. "Plan, Etch Free".
+    private func element(labelContaining text: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
     }
 
     func testSkipAndCheckIn() {

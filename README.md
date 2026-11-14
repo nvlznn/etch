@@ -9,7 +9,10 @@ turns gray. Archive a habit from its page to take it off Check-In, the Log and t
 its history; archived habits are in Settings. Home Screen widgets in small, medium and large let you
 check in without opening the app. Settings picks whether Etch opens on Check-In or the Log; the
 Log reopens in the 7 Days or 26 Weeks mode it was left in. Habits and check-ins sync through the
-user's private iCloud database. The website source is in [`website/`](website/).
+user's private iCloud database. Etch Free keeps up to 3 habits that aren't archived and can't
+unarchive; Etch Pro, a one-time, family-shareable purchase, has no limits. Nothing is ever locked:
+someone with more than 3 habits keeps them all and just can't add more. The website source is in
+[`website/`](website/).
 
 English is the development language; Traditional Chinese (zh-Hant) is a full translation in
 `Shared/Localizable.xcstrings`, shared by the app and the widgets.
@@ -32,6 +35,12 @@ xcodebuild -project Etch.xcodeproj -scheme Etch \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
 ```
 
+Etch Pro is the non-consumable product `dev.noky.etch.pro`. [`Etch.storekit`](Etch.storekit) is the
+local StoreKit configuration the Etch scheme runs with, so buying, refunding and restoring can be
+tried in the simulator without App Store Connect. It sits outside `Etch/` so it isn't bundled. The
+real product, its price and its localizations are set in App Store Connect and are submitted with
+the app version.
+
 `EtchUITests/testLogScrollPerformance` measures scrolling 20 habits × a year of history. The
 simulator doesn't report hitch rates, so run it on a device for meaningful numbers.
 
@@ -41,7 +50,7 @@ simulator doesn't report hitch rates, so run it on a device for meaningful numbe
 |---|---|
 | `Shared/` | Compiled into both the app and the widgets: `Day` and `Month` (local calendar days as `yyyyMMdd`, week and month layout), the SwiftData models, `Store` (the App Group store), the palette (`Graphite.swift` explains every color), `DotGrid`, `CheckDot` and the string catalog. |
 | `Etch/Design/` | The rest of the design system: cards, button styles, the component catalog. |
-| `Etch/Core/` | `Stats` (streaks, totals). Pure, tested. |
+| `Etch/Core/` | `Stats` (streaks, totals) and `Plan` (what Etch Free allows). Pure, tested. `Purchases` is the StoreKit side. |
 | `Etch/Views/` | Check-In, Log, Settings, the detail page and the editor sheet. |
 | `EtchWidgets/` | The widget extension: a timeline of today's habits and an App Intent that checks in from the Home Screen. |
 | `EtchTests/` | Unit tests (Swift Testing). |
@@ -60,6 +69,7 @@ Debug builds only; none of this ships. Add them in the scheme's Run → Argument
 | `-EtchTab log` | Start on the Log tab |
 | `-EtchOpenFirst` | With `-EtchTab log`, open the first habit's detail page |
 | `-EtchRenderIcon` | With `-EtchCatalog`, render `AppIcon.png` into the app's Documents folder |
+| `-EtchPlan free` | Pin the plan to `free` or `pro`, ignoring the App Store |
 
 The app icon is drawn in `AppIconArt` (`Etch/Design/GraphiteCatalog.swift`). To regenerate it:
 

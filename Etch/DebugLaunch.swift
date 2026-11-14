@@ -12,6 +12,7 @@ import SwiftData
 ///     -EtchOpenFirst      on the Log tab, open the first habit's detail page
 ///     -EtchEditScheduled  on Check-In, open the editor for the first habit with a schedule
 ///     -EtchRenderIcon     write AppIcon.png to the app's Documents folder
+///     -EtchPlan <plan>    pin the plan to `free` or `pro`, ignoring the App Store
 enum DebugLaunch {
     private static let arguments = ProcessInfo.processInfo.arguments
 
@@ -21,6 +22,7 @@ enum DebugLaunch {
     static var opensFirstHabit: Bool { arguments.contains("-EtchOpenFirst") }
     static var editsScheduledHabit: Bool { arguments.contains("-EtchEditScheduled") }
     static var rendersIcon: Bool { arguments.contains("-EtchRenderIcon") }
+    static var plan: String? { value(after: "-EtchPlan") }
 
     private static func value(after flag: String) -> String? {
         guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else { return nil }

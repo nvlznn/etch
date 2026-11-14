@@ -142,6 +142,26 @@
         }
       }
     },
+    "Bring archived habits back" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可取消封存習慣"
+          }
+        }
+      }
+    },
+    "Bringing an archived habit back is part of Etch Pro." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消封存習慣是 Etch Pro 的功能。"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "zh-Hant" : {
@@ -382,12 +402,52 @@
         }
       }
     },
+    "Etch Free keeps up to 3 habits and can't bring archived habits back." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etch Free 最多可有 3 個習慣，且無法取消封存。"
+          }
+        }
+      }
+    },
+    "Etch Free keeps up to 3 habits. Archive or delete one to add another, or get Etch Pro for no limit." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etch Free 最多可有 3 個習慣。封存或刪除一個後即可再新增，或升級 Etch Pro 解除限制。"
+          }
+        }
+      }
+    },
     "Frequency" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "頻率"
+          }
+        }
+      }
+    },
+    "Get Etch Pro" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取得 Etch Pro"
+          }
+        }
+      }
+    },
+    "Get Etch Pro · %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取得 Etch Pro · %@"
           }
         }
       }
@@ -570,6 +630,26 @@
         }
       }
     },
+    "One purchase, yours for good, shared with your family." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "買一次，永久擁有，家人也能共享。"
+          }
+        }
+      }
+    },
+    "Plan" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方案"
+          }
+        }
+      }
+    },
     "Previous Day" : {
       "localizations" : {
         "zh-Hant" : {
@@ -596,6 +676,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "休息日"
+          }
+        }
+      }
+    },
+    "Restore Purchases" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還原購買"
           }
         }
       }
@@ -657,6 +747,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "小圓點代表休息日"
+          }
+        }
+      }
+    },
+    "Something went wrong. Try again." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "發生錯誤，請再試一次。"
           }
         }
       }
@@ -729,6 +829,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消打卡"
+          }
+        }
+      }
+    },
+    "Unlimited habits" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不限習慣數量"
           }
         }
       }

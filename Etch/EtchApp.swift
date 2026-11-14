@@ -7,6 +7,7 @@ struct EtchApp: App {
     @State private var container = EtchApp.makeContainer()
     /// The last widget edit this app has loaded; see `Store.widgetEdit`.
     @State private var seenWidgetEdit = Store.widgetEdit
+    @State private var purchases = Purchases()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -16,6 +17,7 @@ struct EtchApp: App {
                 .id(ObjectIdentifier(container))
                 .preferredColorScheme(.dark)
                 .tint(.white)
+                .environment(purchases)
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { _, phase in

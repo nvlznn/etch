@@ -1,0 +1,38 @@
+{
+  "identifier" : "5F6B8C1E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : true,
+      "internalID" : "6740938352",
+      "localizations" : [
+        {
+          "description" : "Unlimited habits, and bring archived habits back.",
+          "displayName" : "Etch Pro",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "不限習慣數量，並可取消封存。",
+          "displayName" : "Etch Pro",
+          "locale" : "zh_Hant"
+        }
+      ],
+      "productID" : "dev.noky.etch.pro",
+      "referenceName" : "Etch Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

@@ -170,6 +170,7 @@ private struct SwipeCheck: Equatable {
 #Preview {
     LogView()
         .modelContainer(PreviewStore.withHabits)
+        .environment(Purchases())
         .preferredColorScheme(.dark)
         .tint(.white)
 }
