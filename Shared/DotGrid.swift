@@ -1,13 +1,14 @@
 import SwiftUI
 
 /// Days as a grid of flat dots, one column per week and one row per weekday, laid out like a
-/// physical dot-grid board: white for done, black for not done. Every past day is drawn, even from
+/// physical dot-grid board: white for done, gray for skipped, black for not done. Every past day is drawn, even from
 /// before the habit existed; future days are left empty.
 ///
 /// Everything is drawn into a single `Canvas`, which stays cheap in a scrolling list.
 struct DotGrid: View {
     let grid: WeekGrid
     let done: Set<Day>
+    var skipped: Set<Day> = []
     let today: Day
     var weekdays = 127
     var showsRestDays = true
@@ -71,6 +72,8 @@ struct DotGrid: View {
                 let frame = CGRect(x: center.x - dot / 2, y: center.y - dot / 2, width: dot, height: dot)
                 if self.done.contains(day) {
                     done.addEllipse(in: frame)
+                } else if skipped.contains(day) {
+                    rest.addEllipse(in: frame)
                 } else if showsRestDays && RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays) {
                     rest.addEllipse(in: frame)
                 } else {
@@ -100,7 +103,10 @@ struct DotGrid: View {
                                 .frame(width: cellSize, height: cellSize)
                                 .accessibilityElement()
                                 .accessibilityLabel(Text(day.date(), format: .dateTime.weekday(.wide).month(.wide).day().year()))
-                                .accessibilityValue(done.contains(day) ? Text("Completed") : Text("Not completed"))
+                                .accessibilityValue(
+                                    done.contains(day) ? Text("Completed")
+                                        : skipped.contains(day) ? Text("Skipped") : Text("Not completed")
+                                )
                                 .accessibilityAddTraits(.isButton)
                                 .accessibilityAction { onTap(day) }
                         } else {

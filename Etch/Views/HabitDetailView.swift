@@ -34,8 +34,10 @@ struct HabitDetailView: View {
 
     private var content: some View {
         let done = habit.doneDays
-        let stats = Stats(days: done, today: today, weekdays: habit.weekdays)
+        let skipped = habit.skippedDays
+        let stats = Stats(days: done, skipped: skipped, today: today, weekdays: habit.weekdays)
         let onTap: ((Day) -> Void)? = isArchived ? nil : { toggle($0) }
+        let onSkip: ((Day) -> Void)? = isArchived ? nil : { toggleSkip($0) }
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -43,7 +45,7 @@ struct HabitDetailView: View {
                     notes
                 }
                 statistics(stats)
-                MonthCalendar(done: done, today: today, firstDay: habit.firstDay, weekdays: habit.weekdays, onTap: onTap)
+                MonthCalendar(done: done, skipped: skipped, today: today, firstDay: habit.firstDay, weekdays: habit.weekdays, onTap: onTap, onSkip: onSkip)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -89,6 +91,14 @@ struct HabitDetailView: View {
         }
         withAnimation(animation) {
             habit.setDone(filling, on: day)
+        }
+        backfills += 1
+    }
+
+    private func toggleSkip(_ day: Day) {
+        let skipping = !habit.isSkipped(on: day)
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+            habit.setSkipped(skipping, on: day)
         }
         backfills += 1
     }
@@ -170,12 +180,15 @@ private struct StatDivider: View {
 /// to change month; tap any day up to today to mark it done or not done.
 private struct MonthCalendar: View {
     let done: Set<Day>
+    let skipped: Set<Day>
     let today: Day
     /// The start of the habit's history; the calendar reaches back at least this far.
     let firstDay: Day
     let weekdays: Int
     /// `nil` for a read-only calendar.
     let onTap: ((Day) -> Void)?
+    /// Skips or unskips a day, from its long-press menu. `nil` for a read-only calendar.
+    let onSkip: ((Day) -> Void)?
 
     /// The month on screen. `nil` until the user changes month, meaning this month.
     @State private var shown: Month?
@@ -200,7 +213,7 @@ private struct MonthCalendar: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(months, id: \.self) { month in
-                        MonthPage(month: month, done: done, today: today, weekdays: weekdays, firstCheckIn: firstCheckIn, firstWeekday: firstWeekday, onTap: onTap)
+                        MonthPage(month: month, done: done, skipped: skipped, today: today, weekdays: weekdays, firstCheckIn: firstCheckIn, firstWeekday: firstWeekday, onTap: onTap, onSkip: onSkip)
                             .padding(.horizontal, inset)
                             .containerRelativeFrame(.horizontal)
                     }
@@ -270,11 +283,13 @@ private struct MonthCalendar: View {
 private struct MonthPage: View {
     let month: Month
     let done: Set<Day>
+    let skipped: Set<Day>
     let today: Day
     let weekdays: Int
     let firstCheckIn: Day?
     let firstWeekday: Int
     let onTap: ((Day) -> Void)?
+    let onSkip: ((Day) -> Void)?
 
     var body: some View {
         // The day in the top-left slot; slots outside the month stay empty.
@@ -290,10 +305,12 @@ private struct MonthPage: View {
                                 DayCell(
                                     day: day,
                                     isDone: done.contains(day),
+                                    isSkipped: skipped.contains(day),
                                     isScheduled: weekdays & (1 << (day.weekday - 1)) != 0,
                                     isRest: RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays),
                                     today: today,
-                                    onTap: onTap
+                                    onTap: onTap,
+                                    onSkip: onSkip
                                 )
                             } else {
                                 Color.clear
@@ -316,10 +333,12 @@ private struct DayCell: View {
 
     let day: Day
     let isDone: Bool
+    let isSkipped: Bool
     let isScheduled: Bool
     let isRest: Bool
     let today: Day
     let onTap: ((Day) -> Void)?
+    let onSkip: ((Day) -> Void)?
 
     var body: some View {
         if day > today {
@@ -329,9 +348,9 @@ private struct DayCell: View {
         } else {
             Button { onTap?(day) } label: {
                 ZStack {
-                    CheckDot(diameter: Self.diameter, isDone: isDone, isRest: isRest)
+                    CheckDot(diameter: Self.diameter, isDone: isDone, isRest: isRest, isSkipped: isSkipped)
                     number
-                        .foregroundStyle(isDone || isRest ? Graphite.background : Graphite.textPrimary)
+                        .foregroundStyle(isDone || isRest || isSkipped ? Graphite.background : Graphite.textPrimary)
                 }
                 .frame(width: Self.size, height: Self.size)
                 .overlay {
@@ -342,8 +361,18 @@ private struct DayCell: View {
             }
             .buttonStyle(CheckDotButtonStyle())
             .disabled(onTap == nil)
+            .contextMenu {
+                // A rest day is already gray, so skipping it would change nothing.
+                if let onSkip, isSkipped || isScheduled {
+                    if isSkipped {
+                        Button("Unskip", systemImage: "arrow.uturn.backward") { onSkip(day) }
+                    } else {
+                        Button("Skip", systemImage: "forward") { onSkip(day) }
+                    }
+                }
+            }
             .accessibilityLabel(Text(day.date(), format: .dateTime.weekday(.wide).month(.wide).day().year()))
-            .accessibilityValue(isDone ? Text("Completed") : Text("Not completed"))
+            .accessibilityValue(isDone ? Text("Completed") : isSkipped ? Text("Skipped") : Text("Not completed"))
             .accessibilityHint(isScheduled ? Text("Scheduled day") : Text("Rest day"))
         }
     }

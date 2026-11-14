@@ -56,6 +56,7 @@ struct LogView: View {
                 .buttonStyle(.pressable)
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     checkTodayButton(for: habit)
+                    skipTodayButton(for: habit)
                 }
                 .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
                 .listRowBackground(Color.clear)
@@ -87,6 +88,28 @@ struct LogView: View {
             }
         }
         .tint(Graphite.swipeAction)
+    }
+
+    /// Next to the check-in button. Skips today, or takes the skip back. A rest day is already
+    /// gray, so there it has nothing to offer.
+    @ViewBuilder
+    private func skipTodayButton(for habit: Habit) -> some View {
+        let skipped = habit.isSkipped(on: today)
+        if skipped || habit.isScheduled(on: today) {
+            Button {
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+                    habit.setSkipped(!skipped, on: today)
+                }
+                lastSwipe = SwipeCheck(count: lastSwipe.count + 1, filled: false)
+            } label: {
+                if skipped {
+                    Label("Unskip", systemImage: "arrow.uturn.backward")
+                } else {
+                    Label("Skip", systemImage: "forward")
+                }
+            }
+            .tint(Graphite.rest)
+        }
     }
 
     private func move(from source: IndexSet, to destination: Int) {

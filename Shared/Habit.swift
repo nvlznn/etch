@@ -26,40 +26,84 @@ final class Habit {
 extension Habit {
     /// Every day this habit was done.
     var doneDays: Set<Day> {
-        Set((checkIns ?? []).compactMap { Day(yyyyMMdd: $0.day) })
+        Set((checkIns ?? []).lazy.filter { !$0.isSkipped }.compactMap { Day(yyyyMMdd: $0.day) })
     }
 
-    /// The earliest recorded check-in, if any.
+    /// Every day the user skipped on purpose.
+    var skippedDays: Set<Day> {
+        Set((checkIns ?? []).lazy.filter(\.isSkipped).compactMap { Day(yyyyMMdd: $0.day) })
+    }
+
+    /// The earliest recorded check-in, if any. Skipped days aren't check-ins.
     var firstCheckInDay: Day? {
-        (checkIns ?? []).lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
+        (checkIns ?? []).lazy.filter { !$0.isSkipped }.compactMap { Day(yyyyMMdd: $0.day) }.min()
     }
 
     /// How far back this habit's history goes: the day it was created, or the earliest check-in
-    /// if one was backfilled before that.
+    /// or skipped day if one was backfilled before that.
     var firstDay: Day {
         let created = Day(createdAt)
-        return min(created, firstCheckInDay ?? created)
+        let earliest = (checkIns ?? []).lazy.compactMap { Day(yyyyMMdd: $0.day) }.min()
+        return min(created, earliest ?? created)
     }
 
     func isDone(on day: Day) -> Bool {
         let key = day.yyyyMMdd
-        return (checkIns ?? []).contains { $0.day == key }
+        return (checkIns ?? []).contains { $0.day == key && !$0.isSkipped }
     }
 
-    /// Records or clears `day`. A habit never has more than one check-in per day.
-    func setDone(_ done: Bool, on day: Day) {
+    func isSkipped(on day: Day) -> Bool {
         let key = day.yyyyMMdd
+        return (checkIns ?? []).contains { $0.day == key && $0.isSkipped }
+    }
+
+    /// Records or clears `day`. A habit never has more than one record per day, so checking in on
+    /// a skipped day turns the skip into a check-in. Clearing leaves a skipped day alone.
+    func setDone(_ done: Bool, on day: Day) {
         if done {
             guard !isDone(on: day) else { return }
-            var records = checkIns ?? []
-            records.append(CheckIn(day: day))
-            checkIns = records
-        } else {
-            let removed = (checkIns ?? []).filter { $0.day == key }
-            checkIns = (checkIns ?? []).filter { $0.day != key }
-            for checkIn in removed {
-                modelContext?.delete(checkIn)
+            if let skip = record(on: day) {
+                skip.isSkipped = false
+            } else {
+                addRecord(CheckIn(day: day))
             }
+        } else {
+            removeRecords(on: day) { !$0.isSkipped }
+        }
+    }
+
+    /// Skips or unskips `day`. Skipping a day that was done replaces the check-in; unskipping
+    /// leaves a done day alone.
+    func setSkipped(_ skipped: Bool, on day: Day) {
+        if skipped {
+            guard !isSkipped(on: day) else { return }
+            if let done = record(on: day) {
+                done.isSkipped = true
+            } else {
+                addRecord(CheckIn(day: day, isSkipped: true))
+            }
+        } else {
+            removeRecords(on: day) { $0.isSkipped }
+        }
+    }
+
+    private func record(on day: Day) -> CheckIn? {
+        let key = day.yyyyMMdd
+        return (checkIns ?? []).first { $0.day == key }
+    }
+
+    private func addRecord(_ record: CheckIn) {
+        var records = checkIns ?? []
+        records.append(record)
+        checkIns = records
+    }
+
+    private func removeRecords(on day: Day, where matches: (CheckIn) -> Bool) {
+        let key = day.yyyyMMdd
+        let removed = (checkIns ?? []).filter { $0.day == key && matches($0) }
+        checkIns = (checkIns ?? []).filter { $0.day != key || !matches($0) }
+        for checkIn in removed {
+            modelContext?.delete(checkIn)
         }
     }
 

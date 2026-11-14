@@ -138,4 +138,61 @@ struct StatsTests {
             #expect(stats.total == 3)
         }
     }
+
+    // MARK: Skipped days
+
+    @Test func skippedDayDoesNotBreakTheStreak() {
+        // Done two days ago and yesterday, today skipped: still a streak of 2, not 0.
+        let stats = Stats(days: days(-2, -1), skipped: days(0), today: today)
+        #expect(stats.currentStreak == 2)
+
+        // A skipped day in the middle joins the runs on either side without counting itself.
+        let joined = Stats(days: days(-3, -2, 0), skipped: days(-1), today: today)
+        #expect(joined.currentStreak == 3)
+        #expect(joined.longestStreak == 3)
+        #expect(joined.total == 3)
+    }
+
+    @Test func skippedDaysAreNotCountedAsDone() {
+        let stats = Stats(days: days(0), skipped: days(-1, -2), today: today)
+        #expect(stats.total == 1)
+        #expect(stats.currentStreak == 1)
+        #expect(stats.longestStreak == 1)
+    }
+
+    @Test func aMissedDayStillBreaksTheStreakNextToASkip() {
+        // Day -2 was skipped but day -3 was missed, so the streak stops at the skip.
+        let stats = Stats(days: days(-4, 0), skipped: days(-2), today: today)
+        #expect(stats.currentStreak == 1)
+        #expect(stats.longestStreak == 1)
+    }
+
+    @Test @MainActor func skippingAndCheckingInAreExclusive() throws {
+        try withHabit { habit in
+            let day = today
+            habit.setSkipped(true, on: day)
+            #expect(habit.isSkipped(on: day))
+            #expect(!habit.isDone(on: day))
+            #expect(habit.doneDays.isEmpty)
+            #expect(habit.skippedDays == [day])
+            #expect(habit.firstCheckInDay == nil)
+
+            // Checking in on a skipped day turns the skip into a check-in.
+            habit.setDone(true, on: day)
+            #expect(habit.isDone(on: day))
+            #expect(!habit.isSkipped(on: day))
+            #expect(habit.checkIns?.count == 1)
+
+            // And skipping a done day replaces the check-in.
+            habit.setSkipped(true, on: day)
+            #expect(!habit.isDone(on: day))
+            #expect(habit.checkIns?.count == 1)
+
+            // Clearing a check-in leaves the skip; unskipping removes it.
+            habit.setDone(false, on: day)
+            #expect(habit.isSkipped(on: day))
+            habit.setSkipped(false, on: day)
+            #expect(habit.checkIns?.isEmpty == true)
+        }
+    }
 }

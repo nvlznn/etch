@@ -15,6 +15,7 @@ struct HabitTile: View {
 
     var body: some View {
         let done = habit.isDone(on: day)
+        let skipped = habit.isSkipped(on: day)
         let scheduled = habit.isScheduled(on: day)
 
         VStack(spacing: 10) {
@@ -33,17 +34,24 @@ struct HabitTile: View {
                 CheckDot(
                     diameter: min(dotDiameter, 112),
                     isDone: done,
-                    isRest: RestDayDot.shows(on: day, firstCheckIn: habit.firstCheckInDay, weekdays: habit.weekdays)
+                    isRest: RestDayDot.shows(on: day, firstCheckIn: habit.firstCheckInDay, weekdays: habit.weekdays),
+                    isSkipped: skipped
                 )
             }
             .buttonStyle(CheckDotButtonStyle())
-            .accessibilityLabel(accessibilityLabel(done: done))
+            .accessibilityLabel(accessibilityLabel(done: done, skipped: skipped))
             .accessibilityValue(scheduled ? Text("Scheduled day") : Text("Rest day"))
         }
         .padding(12)
         .graphiteCard()
         .contentShape(.contextMenuPreview, RoundedRectangle(cornerRadius: Graphite.Radius.card, style: .continuous))
         .contextMenu {
+            // A rest day is already gray, so skipping it would change nothing.
+            if skipped {
+                Button("Unskip", systemImage: "arrow.uturn.backward") { setSkipped(false) }
+            } else if scheduled {
+                Button("Skip", systemImage: "forward") { setSkipped(true) }
+            }
             if !habit.notes.isEmpty { Button("Note", systemImage: "text.alignleft") { showsNote = true } }
             Button("Edit", systemImage: "pencil", action: onEdit)
         }
@@ -74,12 +82,21 @@ struct HabitTile: View {
         }
     }
 
-    private func accessibilityLabel(done: Bool) -> Text {
+    private func accessibilityLabel(done: Bool, skipped: Bool) -> Text {
         if day == today {
+            if skipped { return Text("\(habit.name), skipped today") }
             return done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today")
         }
         let date = day.date().formatted(.dateTime.weekday(.wide).month(.wide).day())
+        if skipped { return Text("\(habit.name), skipped \(date)") }
         return done ? Text("\(habit.name), done \(date)") : Text("\(habit.name), not done \(date)")
+    }
+
+    private func setSkipped(_ skipped: Bool) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+            habit.setSkipped(skipped, on: day)
+        }
+        lastToggle = ToggleEvent(count: lastToggle.count + 1, filled: false)
     }
 
     private func toggle() {

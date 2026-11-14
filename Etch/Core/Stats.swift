@@ -6,12 +6,14 @@ nonisolated struct Stats: Equatable, Sendable {
     let longestStreak: Int
     let total: Int
 
-    init(days: some Sequence<Day>, today: Day, weekdays: Int = 127) {
+    /// `skipped` days are rest days the user chose: they neither break a streak nor count in it.
+    init(days: some Sequence<Day>, skipped: some Sequence<Day> = [Day](), today: Day, weekdays: Int = 127) {
         let serials = Set(days.lazy.map(\.serial))
+        let skippedSerials = Set(skipped.lazy.map(\.serial))
         total = serials.count
 
         func scheduled(_ serial: Int) -> Bool {
-            weekdays & (1 << (Day(serial: serial).weekday - 1)) != 0
+            weekdays & (1 << (Day(serial: serial).weekday - 1)) != 0 && !skippedSerials.contains(serial)
         }
 
         var longest = 0

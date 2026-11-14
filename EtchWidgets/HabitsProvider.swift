@@ -8,6 +8,7 @@ struct HabitSnapshot: Identifiable, Hashable {
     let id: String
     let name: String
     let done: Set<Day>
+    let skipped: Set<Day>
     let weekdays: Int
 
     func showsRestDot(on day: Day) -> Bool {
@@ -46,7 +47,7 @@ struct HabitsProvider: TimelineProvider {
         } ?? []
         let snapshots = habits.compactMap { habit in
             HabitID.encode(habit.persistentModelID).map {
-                HabitSnapshot(id: $0, name: habit.name, done: habit.doneDays, weekdays: habit.weekdays)
+                HabitSnapshot(id: $0, name: habit.name, done: habit.doneDays, skipped: habit.skippedDays, weekdays: habit.weekdays)
             }
         }
         return HabitsEntry(date: .now, today: today, habits: snapshots)
@@ -71,7 +72,7 @@ extension HabitsEntry {
         let names = ["Read 20 pages", "Meditate", "Run", "Journal"]
         let habits = names.enumerated().map { index, name in
             let done = (0..<210).filter { ($0 * (index + 3)) % 7 < 4 }.map { today.adding(days: -$0) }
-            return HabitSnapshot(id: "sample-\(index)", name: name, done: Set(done), weekdays: 127)
+            return HabitSnapshot(id: "sample-\(index)", name: name, done: Set(done), skipped: [], weekdays: 127)
         }
         return HabitsEntry(date: .now, today: today, habits: habits)
     }

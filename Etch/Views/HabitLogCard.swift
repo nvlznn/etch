@@ -30,7 +30,8 @@ struct HabitLogCard: View {
 
     var body: some View {
         let done = habit.doneDays
-        let streak = Stats(days: done, today: today, weekdays: habit.weekdays).currentStreak
+        let skipped = habit.skippedDays
+        let streak = Stats(days: done, skipped: skipped, today: today, weekdays: habit.weekdays).currentStreak
 
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
@@ -50,8 +51,8 @@ struct HabitLogCard: View {
             .padding(.horizontal, 2)
 
             switch span {
-            case .week: WeekRow(done: done, today: today, weekdays: habit.weekdays)
-            case .halfYear: DotGrid(grid: grid, done: done, today: today, weekdays: habit.weekdays)
+            case .week: WeekRow(done: done, skipped: skipped, today: today, weekdays: habit.weekdays)
+            case .halfYear: DotGrid(grid: grid, done: done, skipped: skipped, today: today, weekdays: habit.weekdays)
             }
         }
         .padding(12)
@@ -86,6 +87,7 @@ struct HabitLogCard: View {
 /// The last seven days as dots with their weekdays underneath. Today is always on the right.
 private struct WeekRow: View {
     let done: Set<Day>
+    let skipped: Set<Day>
     let today: Day
     let weekdays: Int
 
@@ -99,7 +101,8 @@ private struct WeekRow: View {
                     CheckDot(
                         diameter: 32,
                         isDone: done.contains(day),
-                        isRest: RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays)
+                        isRest: RestDayDot.shows(on: day, firstCheckIn: firstCheckIn, weekdays: weekdays),
+                        isSkipped: skipped.contains(day)
                     )
                     Text(symbols[day.weekday - 1])
                         .font(.caption2.weight(offset == 0 ? .bold : .medium))

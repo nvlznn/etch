@@ -165,6 +165,34 @@ final class EtchUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Archive"].exists)
     }
 
+    func testSkipAndCheckIn() {
+        launch()
+        app.buttons["Add Habit"].firstMatch.tap()
+        app.textFields["Name"].typeText("Stretch\n")
+        let open = app.buttons["Stretch, not done today"]
+        let skipped = app.buttons["Stretch, skipped today"]
+        let done = app.buttons["Stretch, done today"]
+        XCTAssertTrue(open.waitForExistence(timeout: 3))
+
+        // Skip from the long-press menu.
+        open.press(forDuration: 1.2)
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(skipped.waitForExistence(timeout: 3))
+        snapshot("skipped")
+
+        // Tapping a skipped dot checks in.
+        tapDimple(of: skipped)
+        XCTAssertTrue(done.waitForExistence(timeout: 3))
+
+        // Skipping a done day replaces the check-in, and Unskip clears it.
+        done.press(forDuration: 1.2)
+        app.buttons["Skip"].tap()
+        XCTAssertTrue(skipped.waitForExistence(timeout: 3))
+        skipped.press(forDuration: 1.2)
+        app.buttons["Unskip"].tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 3))
+    }
+
     func testCheckInOnAnotherDay() {
         launch()
         app.buttons["Add Habit"].firstMatch.tap()

@@ -7,18 +7,19 @@ enum RestDayDot {
     }
 }
 
-/// A day circle: black when due, gray on a rest day, and white when completed.
+/// A day circle: black when due, gray on a rest day or a skipped day, and white when completed.
 struct CheckDot: View {
     let diameter: CGFloat
     var isDone = false
     var isRest = false
+    var isSkipped = false
 
     @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(isRest ? Graphite.rest : Graphite.notDone)
+                .fill(isRest || isSkipped ? Graphite.rest : Graphite.notDone)
                 .overlay {
                     if contrast == .increased {
                         Circle().strokeBorder(Graphite.textSecondary, lineWidth: 1)

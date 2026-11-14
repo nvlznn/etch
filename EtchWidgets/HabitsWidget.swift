@@ -50,7 +50,7 @@ private struct TodayList: View {
                 ForEach(entry.habits.prefix(4)) { habit in
                     TodayButton(habit: habit, today: entry.today) { done in
                         HStack(spacing: 8) {
-                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today))
+                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today), isSkipped: habit.skipped.contains(entry.today))
                             Text(habit.name)
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -78,7 +78,7 @@ private struct TodayTiles: View {
                 ForEach(entry.habits.prefix(4)) { habit in
                     TodayButton(habit: habit, today: entry.today) { done in
                         VStack(spacing: 8) {
-                            CheckDot(diameter: 50, isDone: done, isRest: habit.showsRestDot(on: entry.today))
+                            CheckDot(diameter: 50, isDone: done, isRest: habit.showsRestDot(on: entry.today), isSkipped: habit.skipped.contains(entry.today))
                             Text(habit.name)
                                 .font(.caption2.weight(.semibold))
                                 .foregroundStyle(Graphite.textPrimary)
@@ -115,10 +115,10 @@ private struct RecentLog: View {
                                 .foregroundStyle(Graphite.textPrimary)
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today))
+                            CheckDot(diameter: 20, isDone: done, isRest: habit.showsRestDot(on: entry.today), isSkipped: habit.skipped.contains(entry.today))
                         }
                     }
-                    DotGrid(grid: grid, done: habit.done, today: entry.today, weekdays: habit.weekdays)
+                    DotGrid(grid: grid, done: habit.done, skipped: habit.skipped, today: entry.today, weekdays: habit.weekdays)
                 }
             }
             Spacer(minLength: 0)
@@ -133,7 +133,9 @@ private struct TodayHeader: View {
     let entry: HabitsEntry
 
     var body: some View {
-        let due = entry.habits.filter { $0.weekdays & (1 << (entry.today.weekday - 1)) != 0 }
+        let due = entry.habits.filter {
+            $0.weekdays & (1 << (entry.today.weekday - 1)) != 0 && !$0.skipped.contains(entry.today)
+        }
         let done = due.count { $0.done.contains(entry.today) }
         HStack(alignment: .firstTextBaseline) {
             Text(entry.today.date(), format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
@@ -156,11 +158,15 @@ private struct TodayButton<Label: View>: View {
 
     var body: some View {
         let done = habit.done.contains(today)
+        let skipped = habit.skipped.contains(today)
         Button(intent: ToggleHabitIntent(habitID: habit.id, day: today)) {
             label(done)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today"))
+        .accessibilityLabel(
+            skipped ? Text("\(habit.name), skipped today")
+                : done ? Text("\(habit.name), done today") : Text("\(habit.name), not done today")
+        )
         .accessibilityHint(habit.weekdays & (1 << (today.weekday - 1)) != 0 ? Text("Scheduled day") : Text("Rest day"))
     }
 }

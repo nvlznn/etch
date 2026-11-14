@@ -41,6 +41,26 @@
         }
       }
     },
+    "%@, skipped %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@，%2$@已略過"
+          }
+        }
+      }
+    },
+    "%@, skipped today" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，今天已略過"
+          }
+        }
+      }
+    },
     "7 Days" : {
       "localizations" : {
         "zh-Hant" : {
@@ -610,6 +630,26 @@
         }
       }
     },
+    "Skip" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "略過"
+          }
+        }
+      }
+    },
+    "Skipped" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已略過"
+          }
+        }
+      }
+    },
     "Small dots mark rest days" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -679,6 +719,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消打卡"
+          }
+        }
+      }
+    },
+    "Unskip" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消略過"
           }
         }
       }
