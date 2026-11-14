@@ -214,6 +214,8 @@ final class EtchUITests: XCTestCase {
 
         app.tabBars.buttons["Settings"].tap()
         XCTAssertTrue(element(labelContaining: "Etch Pro").waitForExistence(timeout: 3))
+        // The UI tests run a debug build, and Settings says so next to the version.
+        XCTAssertTrue(element(labelContaining: "Debug").exists)
     }
 
     /// The Plan row's name and value are one element for VoiceOver, e.g. "Plan, Etch Free".

@@ -69,12 +69,28 @@ struct SettingsView: View {
                         }
                     }
                 }
+
+                Section {
+                    LabeledContent("Version") { Text(versionText) }
+                }
             }
             .scrollContentBackground(.hidden)
             .background { GraphiteBackground() }
             .navigationTitle("Settings")
             .sheet(item: $paywall) { PaywallSheet(reason: $0) }
         }
+    }
+
+    /// The app's version and build, e.g. "8.0 (1)". A debug build says so.
+    private var versionText: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        #if DEBUG
+        return "\(version) (\(build)) · \(String(localized: "Debug"))"
+        #else
+        return "\(version) (\(build))"
+        #endif
     }
 }
 

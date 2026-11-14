@@ -331,6 +331,16 @@
         }
       }
     },
+    "Debug" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "除錯"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "zh-Hant" : {
@@ -849,6 +859,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消略過"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
           }
         }
       }
