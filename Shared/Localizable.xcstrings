@@ -661,6 +661,16 @@
         }
       }
     },
+    "Start page" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟動頁面"
+          }
+        }
+      }
+    },
     "Streak" : {
       "localizations" : {
         "zh-Hant" : {

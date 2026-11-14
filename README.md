@@ -7,8 +7,9 @@ page has a month calendar for editing its history. Set the weekdays when each ha
 days do not break a streak, and neither does a day you skip: long-press a habit to skip it, and it
 turns gray. Archive a habit from its page to take it off Check-In, the Log and the widgets and keep
 its history; archived habits are in Settings. Home Screen widgets in small, medium and large let you
-check in without opening the app. Habits and check-ins sync through the user's private iCloud
-database. The website source is in [`website/`](website/).
+check in without opening the app. Settings picks whether Etch opens on Check-In or the Log; the
+Log reopens in the 7 Days or 26 Weeks mode it was left in. Habits and check-ins sync through the
+user's private iCloud database. The website source is in [`website/`](website/).
 
 English is the development language; Traditional Chinese (zh-Hant) is a full translation in
 `Shared/Localizable.xcstrings`, shared by the app and the widgets.

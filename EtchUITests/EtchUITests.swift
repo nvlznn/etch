@@ -6,11 +6,12 @@ import XCTest
 final class EtchUITests: XCTestCase {
     private var app: XCUIApplication!
 
-    /// Launches a fresh app on an empty in-memory store, plus any extra launch arguments.
+    /// Launches a fresh app on an empty in-memory store, plus any extra launch arguments. The Start
+    /// page is pinned to Check-In so a saved setting can't change where these tests begin.
     private func launch(_ arguments: String...) {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-EtchInMemory"] + arguments
+        app.launchArguments = ["-EtchInMemory", "-startPage", "checkIn"] + arguments
         app.launch()
     }
 
@@ -191,6 +192,46 @@ final class EtchUITests: XCTestCase {
         skipped.press(forDuration: 1.2)
         app.buttons["Unskip"].tap()
         XCTAssertTrue(open.waitForExistence(timeout: 3))
+    }
+
+    func testStartPageAndLogSpanAreRemembered() {
+        continueAfterFailure = false
+        // Unlike `launch`, this reads the saved Start page. It puts everything back at the end.
+        func start() {
+            app = XCUIApplication()
+            app.launchArguments = ["-EtchInMemory", "-EtchSeed", "1"]
+            app.launch()
+        }
+        func chooseStartPage(_ page: String) {
+            app.tabBars.buttons["Settings"].tap()
+            let picker = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Start page'")).firstMatch
+            XCTAssertTrue(picker.waitForExistence(timeout: 5))
+            picker.tap()
+            app.collectionViews.buttons[page].firstMatch.tap()
+        }
+
+        start()
+        XCTAssertTrue(app.tabBars.buttons["Check-In"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.tabBars.buttons["Check-In"].isSelected, "Check-In is the default start page")
+        chooseStartPage("Log")
+        app.terminate()
+
+        // Back on the Log, and the Log's 7 Days / 26 Weeks is whatever it was last.
+        start()
+        XCTAssertTrue(app.tabBars.buttons["Log"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.tabBars.buttons["Log"].isSelected, "The app opens on the chosen start page")
+        let week = app.buttons["7 Days"]
+        XCTAssertTrue(week.waitForExistence(timeout: 20))
+        week.tap()
+        app.terminate()
+
+        start()
+        XCTAssertTrue(app.buttons["7 Days"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["7 Days"].isSelected, "The Log reopens in the mode it was left in")
+
+        // Put the saved choices back.
+        app.buttons["26 Weeks"].tap()
+        chooseStartPage("Check-In")
     }
 
     func testCheckInOnAnotherDay() {

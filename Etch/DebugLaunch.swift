@@ -8,7 +8,7 @@ import SwiftData
 ///     -EtchSeed <n>       add n habits with up to a year of history (only into an empty store)
 ///     -EtchScreenshots    add the nine App Store screenshot habits, named in the app's language
 ///     -EtchCatalog        show the design-system catalog instead of the app
-///     -EtchTab <tab>      start on the Log or Settings tab (`log`, `settings`)
+///     -EtchTab <tab>      start on the Log or Settings tab (`log`, `settings`), whatever the Start page setting says
 ///     -EtchOpenFirst      on the Log tab, open the first habit's detail page
 ///     -EtchEditScheduled  on Check-In, open the editor for the first habit with a schedule
 ///     -EtchRenderIcon     write AppIcon.png to the app's Documents folder

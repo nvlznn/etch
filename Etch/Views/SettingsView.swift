@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("dayEndHour", store: UserDefaults(suiteName: Store.appGroup)) private var dayEndHour = 0
+    @AppStorage(StartPage.key) private var startPage = StartPage.checkIn
     @Query(Habit.archived)
     private var archived: [Habit]
 
@@ -13,6 +14,12 @@ struct SettingsView: View {
                     Picker("Day ends", selection: $dayEndHour) {
                         ForEach(0...5, id: \.self) { hour in
                             Text(String(format: "%02d:00", hour)).tag(hour)
+                        }
+                    }
+
+                    Picker("Start page", selection: $startPage) {
+                        ForEach(StartPage.allCases) { page in
+                            Text(page.title).tag(page)
                         }
                     }
                 }

@@ -7,6 +7,28 @@ extension EnvironmentValues {
     @Entry var today: Day = .today()
 }
 
+/// The page Etch opens to, chosen in Settings. The Log remembers its own 7 Days or 26 Weeks
+/// separately, so it comes back as the user left it.
+enum StartPage: String, CaseIterable, Identifiable {
+    case checkIn, log
+
+    static let key = "startPage"
+
+    var id: Self { self }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .checkIn: "Check-In"
+        case .log: "Log"
+        }
+    }
+
+    /// The saved choice; Check-In until the user picks one.
+    static var saved: StartPage {
+        UserDefaults.standard.string(forKey: key).flatMap(StartPage.init(rawValue:)) ?? .checkIn
+    }
+}
+
 struct RootView: View {
     private enum Section: Hashable {
         case checkIn, log, settings
@@ -68,12 +90,14 @@ struct RootView: View {
     private static var initialSection: Section {
         #if DEBUG
         switch DebugLaunch.startTab {
-        case "log": .log
-        case "settings": .settings
-        default: .checkIn
+        case "log": return .log
+        case "settings": return .settings
+        default: break
         }
-        #else
-        .checkIn
         #endif
+        return switch StartPage.saved {
+        case .checkIn: .checkIn
+        case .log: .log
+        }
     }
 }
