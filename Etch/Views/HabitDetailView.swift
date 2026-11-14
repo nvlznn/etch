@@ -12,7 +12,7 @@ struct HabitDetailView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(Purchases.self) private var purchases
     @State private var editing = false
-    @State private var paywall: PaywallReason?
+    @State private var showsPaywall = false
     @State private var deleting: Habit?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var backfills = 0
@@ -65,7 +65,7 @@ struct HabitDetailView: View {
                                 dismiss()
                                 habit.unarchive()
                             } else {
-                                paywall = .unarchive
+                                showsPaywall = true
                             }
                         }
                     } else {
@@ -80,7 +80,7 @@ struct HabitDetailView: View {
             }
         }
         .sheet(isPresented: $editing) { HabitEditorSheet(target: .edit(habit)) }
-        .sheet(item: $paywall) { PaywallSheet(reason: $0) }
+        .fullScreenCover(isPresented: $showsPaywall) { PaywallView() }
         .confirmingDeletion(of: $deleting) { habit in
             dismiss()
             modelContext.delete(habit)

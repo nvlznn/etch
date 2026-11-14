@@ -7,7 +7,7 @@ struct SettingsView: View {
     @Query(Habit.archived)
     private var archived: [Habit]
     @Environment(Purchases.self) private var purchases
-    @State private var paywall: PaywallReason?
+    @State private var showsPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -16,7 +16,7 @@ struct SettingsView: View {
                     if purchases.isPro {
                         LabeledContent("Plan") { Text("Etch Pro") }
                     } else {
-                        Button { paywall = .settings } label: {
+                        Button { showsPaywall = true } label: {
                             LabeledContent("Plan") {
                                 HStack(spacing: 6) {
                                     Text("Etch Free")
@@ -36,6 +36,14 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        ArchivedHabitsView()
+                    } label: {
+                        LabeledContent("Archived", value: archived.count, format: .number)
+                    }
+                }
+
+                Section {
                     Picker("Day ends", selection: $dayEndHour) {
                         ForEach(0...5, id: \.self) { hour in
                             Text(String(format: "%02d:00", hour)).tag(hour)
@@ -46,14 +54,6 @@ struct SettingsView: View {
                         ForEach(StartPage.allCases) { page in
                             Text(page.title).tag(page)
                         }
-                    }
-                }
-
-                Section {
-                    NavigationLink {
-                        ArchivedHabitsView()
-                    } label: {
-                        LabeledContent("Archived", value: archived.count, format: .number)
                     }
                 }
 
@@ -77,19 +77,17 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background { GraphiteBackground() }
             .navigationTitle("Settings")
-            .sheet(item: $paywall) { PaywallSheet(reason: $0) }
+            .fullScreenCover(isPresented: $showsPaywall) { PaywallView() }
         }
     }
 
-    /// The app's version and build, e.g. "8.0 (1)". A debug build says so.
+    /// The app's version, e.g. "8.0". A debug build says so.
     private var versionText: String {
-        let info = Bundle.main.infoDictionary
-        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
-        let build = info?["CFBundleVersion"] as? String ?? "?"
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         #if DEBUG
-        return "\(version) (\(build)) · \(String(localized: "Debug"))"
+        return "\(version) · \(String(localized: "Debug"))"
         #else
-        return "\(version) (\(build))"
+        return version
         #endif
     }
 }

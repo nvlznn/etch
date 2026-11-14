@@ -12,7 +12,7 @@ struct CheckInView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(Purchases.self) private var purchases
     @State private var editing: HabitEditorTarget?
-    @State private var paywall: PaywallReason?
+    @State private var showsPaywall = false
     /// How many days before today the page is showing. Kept as an offset so "Today" stays
     /// selected when the date rolls over at midnight.
     @State private var daysAgo = 0
@@ -76,7 +76,7 @@ struct CheckInView: View {
                 }
             }
             .sheet(item: $editing) { HabitEditorSheet(target: $0) }
-            .sheet(item: $paywall) { PaywallSheet(reason: $0) }
+            .fullScreenCover(isPresented: $showsPaywall) { PaywallView() }
             #if DEBUG
             .task {
                 if DebugLaunch.editsScheduledHabit, let habit = habits.first(where: { $0.weekdays != 127 }) {
@@ -92,7 +92,7 @@ struct CheckInView: View {
         if Plan.canAddHabit(active: habits.count, isPro: purchases.isPro) {
             editing = .new
         } else {
-            paywall = .addHabit
+            showsPaywall = true
         }
     }
 
