@@ -1,12 +1,12 @@
 import StoreKit
 import SwiftUI
 
-/// Offers Etch Pro on a page of its own: a glowing orb over a field of dots that ripple outward, a
+/// Offers Etch Pro on a page of its own: a glowing white circle over a field of dots that ripple outward, a
 /// "Lifetime" tag, what Pro adds in two short lines, and the buy button. It never blocks anything the
 /// user already has; it only opens when they try to add a habit past the free limit or unarchive
 /// one, or from Settings.
 ///
-/// This page is the one place Etch isn't flat: the orb is shaded like a sphere and glows. It stays
+/// The orb itself is flat, but this is the one page with a glow and motion behind it. It stays
 /// strictly black, white and gray, and every effect stops with Reduce Motion.
 struct PaywallView: View {
     private static let orbSize: CGFloat = 176
@@ -134,8 +134,8 @@ struct PaywallView: View {
     }
 }
 
-/// A sphere: lit from the upper left, darker toward the lower right, with a soft glow behind it that
-/// breathes and a slow drift up and down. Grays only.
+/// A flat white circle, the same white as a done dot, with a soft glow behind it that breathes and a
+/// slow drift up and down.
 private struct Orb: View {
     let size: CGFloat
     let time: TimeInterval
@@ -150,36 +150,7 @@ private struct Orb: View {
                 .scaleEffect(1 + 0.08 * breath)
 
             Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color(white: 1), Color(white: 0.92), Color(white: 0.55), Color(white: 0.18)],
-                        center: UnitPoint(x: 0.36, y: 0.3),
-                        startRadius: 0,
-                        endRadius: size * 0.95
-                    )
-                )
-                .overlay {
-                    // The highlight.
-                    Circle().fill(
-                        RadialGradient(
-                            colors: [Color(white: 1, opacity: 0.9), Color(white: 1, opacity: 0)],
-                            center: UnitPoint(x: 0.3, y: 0.24),
-                            startRadius: 0,
-                            endRadius: size * 0.34
-                        )
-                    )
-                }
-                .overlay {
-                    // A rim of light along the top.
-                    Circle().strokeBorder(
-                        LinearGradient(
-                            colors: [Color(white: 1, opacity: 0.55), Color(white: 1, opacity: 0)],
-                            startPoint: .top,
-                            endPoint: .center
-                        ),
-                        lineWidth: 1.5
-                    )
-                }
+                .fill(Graphite.done)
                 .frame(width: size, height: size)
         }
         .offset(y: sin(time * 0.9) * 5)
