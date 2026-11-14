@@ -312,6 +312,7 @@
       }
     },
     "Debug" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -410,22 +411,22 @@
         }
       }
     },
-    "Get Etch Pro" : {
+    "Get Lifetime Access" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "取得 Etch Pro"
+            "value" : "取得終身版"
           }
         }
       }
     },
-    "Get Etch Pro · %@" : {
+    "Get Lifetime Access · %@" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "取得 Etch Pro · %@"
+            "value" : "取得終身版 · %@"
           }
         }
       }
@@ -483,6 +484,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud 同步"
+          }
+        }
+      }
+    },
+    "Lifetime" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "終身"
           }
         }
       }
@@ -608,12 +619,12 @@
         }
       }
     },
-    "One-time purchase. Family Sharing included." : {
+    "Pay once, yours for life. Family Sharing included." : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "買斷一次，含家人共享。"
+            "value" : "買一次，終身擁有，含家人共享。"
           }
         }
       }
