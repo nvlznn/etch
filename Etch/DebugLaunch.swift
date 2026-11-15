@@ -13,6 +13,8 @@ import SwiftData
 ///     -EtchEditScheduled  on Check-In, open the editor for the first habit with a schedule
 ///     -EtchRenderIcon     write AppIcon.png to the app's Documents folder
 ///     -EtchPlan <plan>    pin the plan to `free` or `pro`, ignoring the App Store
+///     -EtchPaywall        on Check-In, open the Etch Pro page
+///     -EtchPrice <text>   the price the Etch Pro page shows when the App Store hasn't answered
 enum DebugLaunch {
     private static let arguments = ProcessInfo.processInfo.arguments
 
@@ -23,6 +25,8 @@ enum DebugLaunch {
     static var editsScheduledHabit: Bool { arguments.contains("-EtchEditScheduled") }
     static var rendersIcon: Bool { arguments.contains("-EtchRenderIcon") }
     static var plan: String? { value(after: "-EtchPlan") }
+    static var showsPaywall: Bool { arguments.contains("-EtchPaywall") }
+    static var price: String? { value(after: "-EtchPrice") }
 
     private static func value(after flag: String) -> String? {
         guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else { return nil }

@@ -619,16 +619,6 @@
         }
       }
     },
-    "Pay once, yours for life. Family Sharing included." : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "買一次，終身擁有，含家人共享。"
-          }
-        }
-      }
-    },
     "Plan" : {
       "localizations" : {
         "zh-Hant" : {

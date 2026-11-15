@@ -6,16 +6,16 @@
   "products" : [
     {
       "displayPrice" : "4.99",
-      "familyShareable" : true,
+      "familyShareable" : false,
       "internalID" : "6740938352",
       "localizations" : [
         {
-          "description" : "Unlimited habits, and bring archived habits back.",
+          "description" : "Unlimited habits and unarchiving, for life.",
           "displayName" : "Etch Pro",
           "locale" : "en_US"
         },
         {
-          "description" : "不限習慣數量，並可取消封存。",
+          "description" : "不限習慣數量、可取消封存，終身使用。",
           "displayName" : "Etch Pro",
           "locale" : "zh_Hant"
         }

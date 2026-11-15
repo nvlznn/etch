@@ -94,13 +94,23 @@ struct PaywallView: View {
         .accessibilityHidden(true)
     }
 
+    /// The local price from the App Store. Debug builds can stand one in with `-EtchPrice` for screenshots.
+    private var displayPrice: String? {
+        if let product = purchases.product { return product.displayPrice }
+        #if DEBUG
+        return DebugLaunch.price
+        #else
+        return nil
+        #endif
+    }
+
     private var actions: some View {
         VStack(spacing: 12) {
             Button {
                 Task { await purchases.purchase() }
             } label: {
                 Group {
-                    if let price = purchases.product?.displayPrice {
+                    if let price = displayPrice {
                         Text("Get Lifetime Access · \(price)")
                     } else {
                         Text("Get Lifetime Access")
@@ -120,16 +130,12 @@ struct PaywallView: View {
                 .padding(.vertical, 8)
                 .disabled(purchases.isBusy)
 
-            Group {
-                if purchases.failed {
-                    Text("Something went wrong. Try again.")
-                } else {
-                    Text("Pay once, yours for life. Family Sharing included.")
-                }
+            if purchases.failed {
+                Text("Something went wrong. Try again.")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Graphite.textSecondary)
+                    .multilineTextAlignment(.center)
             }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(Graphite.textSecondary)
-            .multilineTextAlignment(.center)
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Whether this Apple Account owns Etch Pro, and the purchase itself.
 ///
-/// Etch Pro is a one-time, family-shareable purchase. The answer comes from StoreKit, not from
+/// Etch Pro is a one-time purchase. The answer comes from StoreKit, not from
 /// CloudKit, so it follows the Apple Account to every device. The last answer is kept on this device so
 /// the app starts in the right plan even before StoreKit has replied, or offline.
 @Observable
@@ -32,7 +32,7 @@ final class Purchases {
         isPro = pinned ?? UserDefaults.standard.bool(forKey: Self.cacheKey)
         guard pinned == nil else { return }
 
-        // Purchases made elsewhere, refunds and Family Sharing changes arrive here.
+        // Purchases made on another device and refunds arrive here.
         updates = Task { [weak self] in
             for await result in StoreKit.Transaction.updates {
                 await self?.handle(result)

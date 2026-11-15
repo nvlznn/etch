@@ -82,6 +82,7 @@ struct CheckInView: View {
                 if DebugLaunch.editsScheduledHabit, let habit = habits.first(where: { $0.weekdays != 127 }) {
                     editing = .edit(habit)
                 }
+                if DebugLaunch.showsPaywall { showsPaywall = true }
             }
             #endif
         }

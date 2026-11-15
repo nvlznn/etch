@@ -10,7 +10,7 @@ its history; archived habits are in Settings. Home Screen widgets in small, medi
 check in without opening the app. Settings picks whether Etch opens on Check-In or the Log; the
 Log reopens in the 7 Days or 26 Weeks mode it was left in. Habits and check-ins sync through the
 user's private iCloud database. Etch Free keeps up to 3 habits that aren't archived and can't
-unarchive; Etch Pro, a one-time, family-shareable purchase, has no limits. Nothing is ever locked:
+unarchive; Etch Pro, a one-time lifetime purchase, has no limits. Nothing is ever locked:
 someone with more than 3 habits keeps them all and just can't add more. The website source is in
 [`website/`](website/).
 
@@ -70,6 +70,8 @@ Debug builds only; none of this ships. Add them in the scheme's Run → Argument
 | `-EtchOpenFirst` | With `-EtchTab log`, open the first habit's detail page |
 | `-EtchRenderIcon` | With `-EtchCatalog`, render `AppIcon.png` into the app's Documents folder |
 | `-EtchPlan free` | Pin the plan to `free` or `pro`, ignoring the App Store |
+| `-EtchPaywall` | Open the Etch Pro page on Check-In |
+| `-EtchPrice '$4.99'` | The price the Etch Pro page shows when the App Store hasn't answered, for screenshots |
 
 The app icon is drawn in `AppIconArt` (`Etch/Design/GraphiteCatalog.swift`). To regenerate it:
 
